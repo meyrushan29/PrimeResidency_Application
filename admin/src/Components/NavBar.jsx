@@ -1,14 +1,15 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate to handle navigation
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext'; // Import useAuth to access userRole
 
 const NavBar = () => {
-  const navigate = useNavigate(); // Get navigate function to redirect to login
+  const navigate = useNavigate();
+  const { setUserRole } = useAuth(); // Use setUserRole from context
 
   const handleLogout = () => {
-    // Clear user authentication state (e.g., userRole from localStorage or context)
-    localStorage.removeItem('userRole'); // Clear the role from localStorage
-    // Redirect to login page after logging out
-    navigate('/login');
+    localStorage.removeItem('userRole'); // Remove the userRole from localStorage
+    setUserRole(null); // Reset the userRole state to null
+    navigate('/login'); // Redirect to the login page
   };
 
   return (
