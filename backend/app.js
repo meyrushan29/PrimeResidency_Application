@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/db');
 const voterRoutes = require('./routes/voterRoutes');
+const pollRoutes = require('./routes/pollRoutes');
 
 const app = express();
 require('dotenv').config();
@@ -12,6 +13,7 @@ app.use('/uploads', express.static('uploads')); // Serve uploaded files
 connectDB();
 
 app.use('/api/voters', voterRoutes);
+app.use('/api/polls', pollRoutes);
 
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
