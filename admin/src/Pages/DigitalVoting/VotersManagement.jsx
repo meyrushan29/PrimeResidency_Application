@@ -12,6 +12,7 @@ const VotersManagement = () => {
   const [page] = useState(1);
   // eslint-disable-next-line no-unused-vars
   const [totalPages, setTotalPages] = useState(1);
+  const [selectedVoter, setSelectedVoter] = useState(null);
   const itemsPerPage = 10;
 
   useEffect(() => {
@@ -34,9 +35,19 @@ const VotersManagement = () => {
 
   const handleVerificationStatus = async (voterId, isVerified) => {
     try {
-      await axios.patch(`http://localhost:8001/api/voters/${voterId}`, { verified: isVerified });
+      // Add verification date when verifying a voter
+      const verificationDate = isVerified ? new Date().toISOString() : null;
+      await axios.patch(`http://localhost:8001/api/voters/${voterId}`, { 
+        verified: isVerified,
+        verificationDate: verificationDate 
+      });
+      
       setVoters(prevVoters => prevVoters.map(voter =>
-        voter._id === voterId ? { ...voter, verified: isVerified } : voter
+        voter._id === voterId ? { 
+          ...voter, 
+          verified: isVerified,
+          verificationDate: verificationDate
+        } : voter
       ));
     // eslint-disable-next-line no-unused-vars
     } catch (err) {
@@ -75,9 +86,9 @@ const VotersManagement = () => {
   };
 
   const handleReportDownload = () => {
-    const header = 'Name,Email,House ID,Status,Registration Date\n';
+    const header = 'Name,Email,House ID,Status,Registration Date,Verification Date\n';
     const rows = voters.map(voter => {
-      return `${voter.name},${voter.email},${voter.houseId},${voter.verified ? 'Verified' : 'Pending'},${new Date(voter.registrationDate).toLocaleDateString()}`;
+      return `${voter.name},${voter.email},${voter.houseId},${voter.verified ? 'Verified' : 'Pending'},${new Date(voter.registrationDate).toLocaleDateString()},${voter.verificationDate ? new Date(voter.verificationDate).toLocaleDateString() : 'Not Verified'}`;
     }).join('\n');
 
     const csvContent = header + rows;
@@ -174,6 +185,7 @@ const VotersManagement = () => {
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">House ID</th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Registration Date</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Verification Date</th>
                     <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
@@ -213,6 +225,9 @@ const VotersManagement = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {new Date(voter.registrationDate).toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {voter.verificationDate ? new Date(voter.verificationDate).toLocaleDateString() : 'Not Verified'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <button
