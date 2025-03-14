@@ -10,7 +10,7 @@ const ManageHomeAdds = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [apartmentToDelete, setApartmentToDelete] = useState(null);
   const [imageErrors, setImageErrors] = useState({});
-  
+
   // Base URL for API requests
   const baseURL = 'http://localhost:8001';
 
@@ -70,10 +70,9 @@ const ManageHomeAdds = () => {
   };
 
   // Function to correctly format image URLs from MongoDB
-  const getImageUrl = (imagePath, aptId) => {
+  const getImageUrl = (imagePath) => {
     if (!imagePath) {
-      console.log(`No image path provided for apartment ${aptId}`);
-      return null;
+      return '/images/default-image.jpg'; // Default image in case of error
     }
     
     let url;
@@ -82,20 +81,15 @@ const ManageHomeAdds = () => {
     if (imagePath.startsWith('http')) {
       url = imagePath;
     }
-    // For paths starting with '/uploads'
-    else if (imagePath.startsWith('/public')) {
+    // If the image path starts with '/homeimg', construct the full URL
+    else if (imagePath.startsWith('/homeimg')) {
       url = `${baseURL}${imagePath}`;
     }
-    // For paths not starting with '/'
-    else if (!imagePath.startsWith('/')) {
-      url = `${baseURL}/uploads/apartments/${imagePath}`;
-    }
-    // Default case for other relative paths
+    // For paths not starting with '/' and no 'http', construct the full URL
     else {
-      url = `${baseURL}${imagePath}`;
+      url = `${baseURL}/homeimg/apartments/${imagePath}`;
     }
     
-    console.log(`Image path ${imagePath} transformed to URL: ${url}`);
     return url;
   };
 
@@ -163,27 +157,21 @@ const ManageHomeAdds = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {apartments.map((apartment) => {
             const hasImages = apartment.images && apartment.images.length > 0;
-            const imageUrl = hasImages ? getImageUrl(apartment.images[0], apartment._id) : null;
+            const imageUrl = hasImages ? getImageUrl(apartment.images[0]) : '/images/default-image.jpg'; // Fallback image
             const imageKey = hasImages ? `${apartment._id}-${apartment.images[0]}` : null;
-            const hasImageError = imageKey ? imageErrors[imageKey] : true;
-            
+            const hasImageError = imageKey ? imageErrors[imageKey] : false;
+
             return (
               <div key={apartment._id} className="border rounded-lg overflow-hidden shadow-lg">
                 <div className="relative h-48 bg-gray-200">
-                  {hasImages && !hasImageError ? (
-                    <div className="w-full h-full">
-                      <img 
-                        src={imageUrl}
-                        alt={apartment.title || 'Apartment'} 
-                        className="w-full h-full object-cover"
-                        onError={() => handleImageError(apartment._id, apartment.images[0])}
-                      />
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-center h-full bg-gray-300">
-                      {hasImages ? 'Image failed to load' : 'No Image'}
-                    </div>
-                  )}
+                  <div className="w-full h-full">
+                    <img 
+                      src={hasImageError ? '/images/default-image.jpg' : imageUrl}
+                      alt={apartment.title || 'Apartment'} 
+                      className="w-full h-full object-cover"
+                      onError={() => handleImageError(apartment._id, apartment.images[0])}
+                    />
+                  </div>
                 </div>
                 
                 <div className="p-4">
@@ -206,18 +194,9 @@ const ManageHomeAdds = () => {
                       {apartment.bathrooms || 'N/A'} {apartment.bathrooms === '1' ? 'Bathroom' : 'Bathrooms'}
                     </div>
                   </div>
-                  
-                  <p className="text-gray-600 mb-4 line-clamp-3">
+                   <p className="text-gray-600 mb-4 line-clamp-3">
                     {apartment.description || 'No description'}
                   </p>
-                  
-                  {/* For debugging - show image paths */}
-                  {hasImages && (
-                    <div className="text-xs text-gray-500 mb-2 break-all">
-                      Image path: {apartment.images[0]}
-                    </div>
-                  )}
-                  
                   <div className="flex space-x-2">
                     <Link 
                       to={`/edit-apartment/${apartment._id}`}

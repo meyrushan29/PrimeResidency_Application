@@ -34,7 +34,7 @@ const VotersRegister = () => {
     }
 
     try {
-      await axios.post('http://localhost:8000/api/voters/register', submitData, {
+      await axios.post('http://localhost:8001/api/voters/register', submitData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       setMessage({

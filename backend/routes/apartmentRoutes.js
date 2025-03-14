@@ -1,4 +1,3 @@
-// routes/apartmentRoutes.js
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
@@ -10,8 +9,8 @@ const apartmentController = require('../controller/apartmentController');
 // Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    const uploadDir = 'public/uploads/apartments';
-    
+    const uploadDir = path.join(__dirname, '..', 'homeimg', 'apartments'); // Use path.join to resolve paths
+
     // Create directory if it doesn't exist
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });

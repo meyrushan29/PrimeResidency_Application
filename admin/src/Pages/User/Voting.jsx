@@ -12,7 +12,7 @@ const Voting = () => {
     const fetchPolls = async () => {
       setIsLoading(true);
       try {
-        const { data } = await axios.get('http://localhost:8000/api/polls');
+        const { data } = await axios.get('http://localhost:8001/api/polls');
         setPolls(data);
         setError(null);
       } catch (error) {
@@ -39,7 +39,7 @@ const Voting = () => {
     }
     
     try {
-      await axios.post('http://localhost:8000/api/polls/vote', {
+      await axios.post('http://localhost:8001/api/polls/vote', {
         pollId,
         optionId: selectedOptions[pollId]
       });
