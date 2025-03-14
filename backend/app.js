@@ -3,6 +3,7 @@ const cors = require('cors');
 const connectDB = require('./config/db');
 const voterRoutes = require('./routes/voterRoutes');
 const pollRoutes = require('./routes/pollRoutes');
+const appartmentRoutes =require('./routes/apartmentRoutes');
 
 const app = express();
 require('dotenv').config();
@@ -14,8 +15,9 @@ connectDB();
 
 app.use('/api/voters', voterRoutes);
 app.use('/api/polls', pollRoutes);
+app.use('/api/apartments', appartmentRoutes);
 
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT || 8001;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

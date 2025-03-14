@@ -24,7 +24,7 @@ const PollCreate = () => {
 
   const handleSubmit = async () => {
     try {
-      await axios.post('http://localhost:8000/api/polls/create', { question, options });
+      await axios.post('http://localhost:8001/api/polls/create', { question, options });
       alert('Poll created successfully');
     } catch (error) {
       alert('Error creating poll');

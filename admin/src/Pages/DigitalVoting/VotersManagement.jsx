@@ -15,7 +15,7 @@ const VotersManagement = () => {
     const fetchVoters = async () => {
       setIsLoading(true);
       try {
-        const response = await axios.get(`http://localhost:8000/api/voters?page=${page}&limit=${itemsPerPage}`);
+        const response = await axios.get(`http://localhost:8001/api/voters?page=${page}&limit=${itemsPerPage}`);
         console.log(response.data);  // Log response to debug
         setVoters(response.data.voters);
         setTotalPages(response.data.totalPages);
