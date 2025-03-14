@@ -26,6 +26,7 @@ const PollCreate = () => {
     try {
       await axios.post('http://localhost:8000/api/polls/create', { question, options });
       alert('Poll created successfully');
+    // eslint-disable-next-line no-unused-vars
     } catch (error) {
       alert('Error creating poll');
     }

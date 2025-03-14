@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
@@ -38,9 +39,9 @@ const Voting = () => {
     }
     
     try {
-      await axios.post('http://localhost:8000/api/polls/vote', { 
-        pollId, 
-        optionId: selectedOptions[pollId] 
+      await axios.post('http://localhost:8000/api/polls/vote', {
+        pollId,
+        optionId: selectedOptions[pollId]
       });
       
       // Update UI to show vote was successful
@@ -115,11 +116,11 @@ const Voting = () => {
             <div className="p-6">
               <div className="space-y-3 mb-6">
                 {poll.options.map((option) => (
-                  <label 
-                    key={option._id} 
-                    className={`flex items-center p-3 rounded-lg cursor-pointer transition-all duration-150 
-                      ${selectedOptions[poll._id] === option._id 
-                        ? 'bg-blue-50 border-2 border-blue-500' 
+                  <label
+                    key={option._id}
+                    className={`flex items-center p-3 rounded-lg cursor-pointer transition-all duration-150
+                      ${selectedOptions[poll._id] === option._id
+                        ? 'bg-blue-50 border-2 border-blue-500'
                         : 'bg-gray-50 hover:bg-gray-100 border-2 border-transparent'}`}
                   >
                     <input
@@ -143,7 +144,7 @@ const Voting = () => {
                   ${poll.hasVoted 
                     ? 'bg-green-100 text-green-700 cursor-default'
                     : selectedOptions[poll._id]
-                      ? 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2' 
+                      ? 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
                       : 'bg-gray-200 text-gray-500 cursor-not-allowed'}`}
               >
                 {poll.hasVoted ? (

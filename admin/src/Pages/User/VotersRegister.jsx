@@ -46,9 +46,9 @@ const VotersRegister = () => {
       setPhoto(null);
     } catch (error) {
       console.error('Error registering voter:', error);
-      setMessage({ 
-        type: 'error', 
-        text: 'Registration failed. Please try again.' 
+      setMessage({
+        type: 'error',
+        text: 'Registration failed. Please try again.'
       });
     } finally {
       setIsSubmitting(false);
@@ -224,13 +224,13 @@ const VotersRegister = () => {
                 <div className="space-y-2">
                   <div className="flex justify-center">
                     <div className="relative">
-                      <img 
-                        src={URL.createObjectURL(photo)} 
-                        alt="Voter Photo" 
-                        className="h-36 object-cover rounded-lg shadow-sm" 
+                      <img
+                        src={URL.createObjectURL(photo)}
+                        alt="Voter Photo"
+                        className="h-36 object-cover rounded-lg shadow-sm"
                       />
                       <div className="absolute top-0 right-0 -mt-1 -mr-1">
-                        <span className="bg-green-500 text-white text-xs px-1 py-0.5 rounded-full text-xs shadow-sm">
+                        <span className="bg-green-500 text-white  px-1 py-0.5 rounded-full text-xs shadow-sm">
                           ✓
                         </span>
                       </div>
