@@ -8,7 +8,7 @@ const PollDashboard = () => {
   useEffect(() => {
     const fetchPollResults = async () => {
       try {
-        const { data } = await axios.get('http://localhost:8000/api/polls');
+        const { data } = await axios.get('http://localhost:8001/api/polls');
         setPolls(data);
       } catch (error) {
         console.error('Error fetching poll results:', error);
