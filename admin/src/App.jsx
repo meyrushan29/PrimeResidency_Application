@@ -11,6 +11,7 @@ import PollDashboard from './Pages/DigitalVoting/PollDashboard';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { AvHome } from './Pages/AvaiHome/AvHome';
 import ManageHomeAdds from './Pages/AvaiHome/ManageHomeAdds';
+import EditAvHome from './Pages/AvaiHome/EditAvHome';
 
 const App = () => {
   const { userRole } = useAuth();
@@ -45,6 +46,7 @@ const App = () => {
                     <Route path="/polldashboard" element={<PollDashboard />} />
                     <Route path="/avhome" element={<AvHome />} />
                     <Route path="/manageaddhome" element={<ManageHomeAdds />} />
+                    <Route path="/editavhome/:id" element={<EditAvHome />} />
                   </>
                 )}
                 <Route path="*" element={<Navigate to="/" />} />
