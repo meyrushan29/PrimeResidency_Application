@@ -56,7 +56,7 @@ const AvailableHomes = () => {
   return (
     <section className="py-20 px-6 bg-gray-900">
       <div className="container mx-auto">
-        <h2 className="text-3xl font-bold text-white mb-8 text-center">Available Apartments</h2>
+        <h2 className="text-3xl font-bold text-white mt-20 mb-12 text-center">Available Apartments</h2>
 
         {/* Apartments Grid */}
         {apartments.length > 0 ? (
@@ -159,7 +159,7 @@ const AvailableHomes = () => {
 
                   <button
                     className="w-full bg-gray-100 hover:bg-blue-600 hover:text-white text-blue-600 rounded-lg py-3 font-medium transition-colors duration-300"
-                    onClick={() => navigate(`/apartment/${apartment._id}`)}
+                    onClick={() => navigate(`/viewonehome/${apartment._id}`)}
                   >
                     View Details
                   </button>

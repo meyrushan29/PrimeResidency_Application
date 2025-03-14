@@ -9,6 +9,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import Contact from './Pages/Contact';
 import AvailableHome from './Pages/AvailableHome';
 import Services from './Pages/Services';
+import ViewOneHome from './Pages/ViewOneHome';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           <Route path='/availablehome' element={<AvailableHome />} />
           <Route path='/services' element={<Services />} />
           <Route path='/contact' element={<Contact />} />
+          <Route path='/viewonehome/:id' element={<ViewOneHome />} />
           
         </Routes>
         <Footer />
