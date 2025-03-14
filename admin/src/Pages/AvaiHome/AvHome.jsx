@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 
 export const AvHome = () => {
   const [formData, setFormData] = useState({
-    title: '2-Bedroom Apartment',
-    price: '150000',
-    area: '1200',
-    bedrooms: '2',
-    bathrooms: '2',
-    furnished: true,
-    view: 'City View',
+    title: '',
+    price: '',
+    area: '',
+    bedrooms: '',
+    bathrooms: '',
+    furnished: false,
+    view: '',
     description: '',
     images: []
   });
@@ -99,6 +99,7 @@ export const AvHome = () => {
       });
       
       // Add each image file to FormData with the correct field name
+      // eslint-disable-next-line no-unused-vars
       formData.images.forEach((image, index) => {
         submitData.append('images', image); // Use 'images' as the field name to match backend
       });
@@ -121,8 +122,8 @@ export const AvHome = () => {
           title: '',
           price: '',
           area: '',
-          bedrooms: '1',
-          bathrooms: '1',
+          bedrooms: '',
+          bathrooms: '',
           furnished: false,
           view: '',
           description: '',

@@ -25,7 +25,7 @@ exports.createApartment = async (req, res) => {
 
     // Process uploaded files
     const imageFiles = req.files;
-    const imagePaths = imageFiles.map(file => `/uploads/apartments/${file.filename}`);
+    const imagePaths = imageFiles.map(file => `/homeimg/apartments/${file.filename}`);
 
     // Create apartment with image paths
     const apartmentData = {
@@ -105,7 +105,7 @@ exports.updateApartment = async (req, res) => {
     
     // Process new image uploads if any
     if (req.files && req.files.length > 0) {
-      const newImagePaths = req.files.map(file => `/uploads/apartments/${file.filename}`);
+      const newImagePaths = req.files.map(file => `/homeimg/apartments/${file.filename}`);
       
       // Combine existing and new images
       const updatedImages = [...apartment.images, ...newImagePaths];
@@ -154,7 +154,7 @@ exports.deleteApartment = async (req, res) => {
     
     // Delete associated images
     apartment.images.forEach(imagePath => {
-      const fullPath = path.join(__dirname, '..', 'public', imagePath);
+      const fullPath = path.join(__dirname, '..', 'homeimg', imagePath);
       fs.unlink(fullPath, err => {
         if (err) console.error('Error deleting image:', err);
       });

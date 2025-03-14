@@ -34,7 +34,7 @@ const VotersManagement = () => {
 
   const handleVerificationStatus = async (voterId, isVerified) => {
     try {
-      await axios.patch(`http://localhost:8000/api/voters/${voterId}`, { verified: isVerified });
+      await axios.patch(`http://localhost:8001/api/voters/${voterId}`, { verified: isVerified });
       setVoters(prevVoters => prevVoters.map(voter =>
         voter._id === voterId ? { ...voter, verified: isVerified } : voter
       ));
@@ -48,7 +48,7 @@ const VotersManagement = () => {
     if (!window.confirm('Are you sure you want to delete this voter?')) return;
 
     try {
-      await axios.delete(`http://localhost:8000/api/voters/${voterId}`);
+      await axios.delete(`http://localhost:8001/api/voters/${voterId}`);
       setVoters(prevVoters => prevVoters.filter(voter => voter._id !== voterId));
     // eslint-disable-next-line no-unused-vars
     } catch (err) {
@@ -186,7 +186,7 @@ const VotersManagement = () => {
                             {voter.photo ? (
                               <img
                                 className="h-10 w-10 rounded-full object-cover"
-                                src={`http://localhost:8000/${voter.photo}`}
+                                src={`http://localhost:8001/${voter.photo}`}
                                 alt="Voter"
                               />
                             ) : (
