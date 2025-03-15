@@ -10,6 +10,8 @@ const { errorHandler } = require('./middleware/auth');
 const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
 const path = require('path');
+const accountRoutes = require('./routes/AccountRoutes');
+
 
 // Load environment variables
 require('dotenv').config();
@@ -42,6 +44,7 @@ app.use('/api/polls', pollRoutes);
 app.use('/api/apartments', apartmentRoutes); // Fixed spelling of 'apartment'
 app.use('/api', bookingRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/authaccount', accountRoutes);
 
 // Error handling middleware
 app.use(errorHandler); // Added error handler middleware
