@@ -170,7 +170,7 @@ const TopAvailableFlats = () => {
 
                   <button
                     className="w-full bg-gray-100 hover:bg-blue-600 hover:text-white text-blue-600 rounded-lg py-3 font-medium transition-colors duration-300"
-                    onClick={() => navigate(`/apartment/${apartment._id}`)}
+                    onClick={() => navigate(`/viewonehome/${apartment._id}`)}
                   >
                     View Details
                   </button>
