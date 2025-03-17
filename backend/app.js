@@ -3,15 +3,14 @@ const cors = require('cors');
 const connectDB = require('./config/db');
 const voterRoutes = require('./routes/voterRoutes');
 const pollRoutes = require('./routes/pollRoutes');
-const apartmentRoutes = require('./routes/apartmentRoutes'); // Fixed spelling of 'apartment'
+const apartmentRoutes = require('./routes/apartmentRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
-const authRoutes = require('./routes/authRoutes'); // Moved declaration to the top
+const authRoutes = require('./routes/authRoutes');
+const accountRoutes = require('./routes/AccountRoutes');
 const { errorHandler } = require('./middleware/auth');
 const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
 const path = require('path');
-const accountRoutes = require('./routes/AccountRoutes');
-
 
 // Load environment variables
 require('dotenv').config();
@@ -22,7 +21,7 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use(cookieParser()); // Moved middleware up before routes
+app.use(cookieParser());
 
 // Dev logging middleware
 if (process.env.NODE_ENV === 'development') {
@@ -41,13 +40,13 @@ connectDB();
 // Mount routes
 app.use('/api/voters', voterRoutes);
 app.use('/api/polls', pollRoutes);
-app.use('/api/apartments', apartmentRoutes); // Fixed spelling of 'apartment'
+app.use('/api/apartments', apartmentRoutes);
 app.use('/api', bookingRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/authaccount', accountRoutes);
 
 // Error handling middleware
-app.use(errorHandler); // Added error handler middleware
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 8001;
 app.listen(PORT, () => {
