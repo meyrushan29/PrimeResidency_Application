@@ -1,4 +1,3 @@
-// models/Booking.js
 const mongoose = require('mongoose');
 
 const bookingSchema = new mongoose.Schema({
@@ -8,7 +7,7 @@ const bookingSchema = new mongoose.Schema({
     required: true,
   },
   date: {
-    type: String, // Date as string (e.g., '2025-03-15')
+    type: Date,  // Changed to Date type for better handling of dates
     required: true,
   },
   timeSlot: {

@@ -74,19 +74,32 @@ const ViewOneHome = () => {
   const handleBookAppointment = async () => {
     if (selectedDay && selectedSlot) {
       try {
+        // For debugging
+        console.log('Sending booking request with:', {
+          apartmentId: apartment._id,
+          date: `2025-03-${selectedDay}`,
+          timeSlot: selectedSlot,
+          userId: localStorage.getItem('userId') || '65f1dba5f3289c6b25f89bc2' // Replace with a valid ObjectId
+        });
+        
         // Making the POST request to create a booking
         const response = await axios.post('http://localhost:8001/api/booking', {
           apartmentId: apartment._id,
-          date: `2025-03-${selectedDay}`, // Sample date formatting (you can customize it further)
+          date: `2025-03-${selectedDay}`,
           timeSlot: selectedSlot,
-          userId: 'user_id', // Replace with the actual user ID
+          userId: localStorage.getItem('userId') || '65f1dba5f3289c6b25f89bc2' // Replace with a valid ObjectId
         });
-
+  
         console.log('Booking response:', response.data);
         alert('Booking confirmed!');
       } catch (err) {
         console.error('Booking failed:', err);
-        alert('Failed to book appointment');
+        // More detailed error message
+        if (err.response && err.response.data) {
+          alert(`Failed to book appointment: ${err.response.data.message}`);
+        } else {
+          alert('Failed to book appointment');
+        }
       }
     } else {
       alert('Please select both a day and time slot');
@@ -275,7 +288,7 @@ const ViewOneHome = () => {
               </div>
             ))}
           </div>
-          
+
           {/* Time Slots */}
           <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-11 gap-4 mt-6">
             {timeSlots.map((slot) => (
