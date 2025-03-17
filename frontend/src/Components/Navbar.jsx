@@ -67,7 +67,7 @@ const Navbar = () => {
                 <div className="flex items-center">
                     <img 
                         onClick={() => navigate('/')} 
-                        className="w-36 md:w-44 cursor-pointer transition-transform hover:scale-105" 
+                        className="w-36 md:w-52 cursor-pointer transition-transform hover:scale-105" 
                         src={logo} 
                         alt="Logo" 
                     />
