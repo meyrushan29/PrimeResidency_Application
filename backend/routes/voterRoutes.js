@@ -2,6 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const Voter = require('../models/Voters');
+const { v4: uuidv4 } = require('uuid'); // Importing UUID to generate unique voter IDs
 const router = express.Router();
 
 // Storage setup for file uploads
@@ -23,19 +24,32 @@ router.post('/register', upload.single('photo'), async (req, res) => {
     const { name, email, houseId } = req.body;
     const photo = req.file ? req.file.path : null;
 
+    // Generate unique voter ID using UUID
+    const voterId = uuidv4();
+
+    // Create new voter document
     const newVoter = new Voter({
+      voterId,
       name,
       email,
       houseId,
       photo,
-      verified: false,
+      verified: false, // Default to false, indicating pending verification
     });
 
+    // Save to the database
     await newVoter.save();
-    res.status(200).json({ message: 'Voter registration successful!', voter: newVoter });
+
+    return res.status(200).json({
+      message: 'Voter registration successful!',
+      voter: newVoter,
+    });
   } catch (error) {
     console.error('Error registering voter:', error);
-    res.status(500).json({ message: 'An error occurred during voter registration.', error });
+    res.status(500).json({
+      message: 'An error occurred during voter registration.',
+      error,
+    });
   }
 });
 
@@ -64,9 +78,14 @@ router.get('/', async (req, res) => {
 router.patch('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { verified } = req.body;
+    const { verified, verificationDate } = req.body;
 
-    const updatedVoter = await Voter.findByIdAndUpdate(id, { verified }, { new: true });
+    // Update the verification status and set the verification date
+    const updatedVoter = await Voter.findByIdAndUpdate(
+      id,
+      { verified, verificationDate },
+      { new: true }
+    );
 
     if (!updatedVoter) {
       return res.status(404).json({ message: 'Voter not found' });

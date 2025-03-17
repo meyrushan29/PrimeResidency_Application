@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
@@ -16,7 +15,6 @@ const Voting = () => {
         setPolls(data);
         setError(null);
       } catch (error) {
-        console.error('Error fetching polls');
         setError('Failed to load polls. Please try again later.');
       } finally {
         setIsLoading(false);
@@ -28,7 +26,7 @@ const Voting = () => {
   const handleOptionSelect = (pollId, optionId) => {
     setSelectedOptions({
       ...selectedOptions,
-      [pollId]: optionId
+      [pollId]: optionId,
     });
   };
 
@@ -37,25 +35,42 @@ const Voting = () => {
       alert('Please select an option first');
       return;
     }
-    
+
+    const token = localStorage.getItem('jwtToken');
+
+    if (!token) {
+      alert('User is not authenticated. Please log in.');
+      return;
+    }
+
     try {
-      await axios.post('http://localhost:8001/api/polls/vote', {
-        pollId,
-        optionId: selectedOptions[pollId]
-      });
-      
-      // Update UI to show vote was successful
-      const updatedPolls = polls.map(poll => {
+      // Send vote data to backend with JWT token in the Authorization header
+      const response = await axios.post(
+        'http://localhost:8001/api/polls/vote',
+        {
+          pollId,
+          optionId: selectedOptions[pollId],
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const updatedPolls = polls.map((poll) => {
         if (poll._id === pollId) {
-          return { ...poll, hasVoted: true };
+          return { ...poll, hasVoted: true }; // mark poll as voted
         }
         return poll;
       });
-      
+
       setPolls(updatedPolls);
-      alert('Vote cast successfully');
+      alert(response.data.message); // "Vote cast successfully"
     } catch (error) {
-      alert('Error voting');
+      alert(
+        error.response ? error.response.data.message : error.message
+      );
     }
   };
 
@@ -102,17 +117,12 @@ const Voting = () => {
   return (
     <div className="max-w-4xl mx-auto p-8 bg-white rounded-lg shadow-xl mt-10">
       <h1 className="text-3xl font-bold text-gray-800 mb-6">Active Polls</h1>
-      
       <div className="space-y-6">
         {polls.map((poll) => (
-          <div 
-            key={poll._id} 
-            className="border border-gray-200 rounded-lg overflow-hidden transition-all duration-200 hover:shadow-md"
-          >
+          <div key={poll._id} className="border border-gray-200 rounded-lg overflow-hidden transition-all duration-200 hover:shadow-md">
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 border-b border-gray-200">
               <h2 className="text-xl font-semibold text-gray-800">{poll.question}</h2>
             </div>
-            
             <div className="p-6">
               <div className="space-y-3 mb-6">
                 {poll.options.map((option) => (
@@ -136,12 +146,11 @@ const Voting = () => {
                   </label>
                 ))}
               </div>
-              
               <button
                 onClick={() => handleVote(poll._id)}
                 disabled={poll.hasVoted || !selectedOptions[poll._id]}
                 className={`w-full py-3 px-4 flex justify-center items-center gap-2 rounded-lg font-medium transition-all duration-200
-                  ${poll.hasVoted 
+                  ${poll.hasVoted
                     ? 'bg-green-100 text-green-700 cursor-default'
                     : selectedOptions[poll._id]
                       ? 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
@@ -152,14 +161,14 @@ const Voting = () => {
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
-                    Vote Recorded
+                    <span>Vote Recorded</span>
                   </>
                 ) : (
                   <>
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                       <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
                     </svg>
-                    Submit Vote
+                    <span>Submit Vote</span>
                   </>
                 )}
               </button>
