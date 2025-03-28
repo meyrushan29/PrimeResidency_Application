@@ -11,8 +11,29 @@ const VotersRegister = () => {
   const [isCapturing, setIsCapturing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
+  const [errors, setErrors] = useState({});
+  
   const videoRef = useRef();
   const canvasRef = useRef();
+
+  // Validation logic
+  const validateForm = () => {
+    const newErrors = {};
+    const nameRegex = /^[a-zA-Z\s]+$/; // Name should only contain letters and spaces
+    const houseIdRegex = /^H-\d+$/;  // House ID format: H-11, H-22, etc.
+
+    if (!formData.name) newErrors.name = 'Full name is required.';
+    else if (!nameRegex.test(formData.name)) newErrors.name = 'Name can only contain letters and spaces.';
+
+    if (!formData.email) newErrors.email = 'Email address is required.';
+    if (!formData.houseId) newErrors.houseId = 'House ID is required.';
+    else if (!houseIdRegex.test(formData.houseId)) newErrors.houseId = 'House ID must be in the format H-11, H-12, etc.';
+    
+    if (!photo) newErrors.photo = 'Please capture a photo before submitting.';
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleInputChange = (e) => {
     const { id, value } = e.target;
@@ -23,6 +44,11 @@ const VotersRegister = () => {
     e.preventDefault();
     setIsSubmitting(true);
     setMessage({ type: '', text: '' });
+
+    if (!validateForm()) {
+      setIsSubmitting(false);
+      return;
+    }
 
     const submitData = new FormData();
     Object.entries(formData).forEach(([key, value]) => {
@@ -41,7 +67,6 @@ const VotersRegister = () => {
         type: 'success',
         text: 'Registration successful!'
       });
-      
       setFormData({ name: '', email: '', houseId: '' });
       setPhoto(null);
     } catch (error) {
@@ -113,7 +138,7 @@ const VotersRegister = () => {
   return (
     <div className="bg-gray-50 p-4">
       <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-md overflow-hidden">
-        {/* Header - more compact */}
+        {/* Header */}
         <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-4 rounded-t-xl">
           <h2 className="text-2xl font-bold text-center">Voter Registration</h2>
           <p className="text-sm text-center text-blue-100">Complete this form to register as a voter.</p>
@@ -126,10 +151,10 @@ const VotersRegister = () => {
           </div>
         )}
         
-        {/* Form - Restructured to be more compact */}
+        {/* Form */}
         <form onSubmit={handleSubmit} className="p-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Left Column: Personal Info */}
+            {/* Left Column */}
             <div className="md:col-span-2 space-y-3">
               <h3 className="text-lg font-semibold text-gray-800">Personal Information</h3>
               
@@ -143,10 +168,11 @@ const VotersRegister = () => {
                     type="text"
                     value={formData.name}
                     onChange={handleInputChange}
-                    className="mt-1 p-2 w-full border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
+                    className={`mt-1 p-2 w-full border ${errors.name ? 'border-red-500' : 'border-gray-300'} rounded focus:ring-blue-500 focus:border-blue-500`}
                     placeholder="Enter your full name"
                     required
                   />
+                  {errors.name && <p className="text-xs text-red-600">{errors.name}</p>}
                 </div>
 
                 <div>
@@ -158,10 +184,11 @@ const VotersRegister = () => {
                     type="email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="mt-1 p-2 w-full border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
+                    className={`mt-1 p-2 w-full border ${errors.email ? 'border-red-500' : 'border-gray-300'} rounded focus:ring-blue-500 focus:border-blue-500`}
                     placeholder="you@example.com"
                     required
                   />
+                  {errors.email && <p className="text-xs text-red-600">{errors.email}</p>}
                 </div>
               </div>
               
@@ -174,22 +201,20 @@ const VotersRegister = () => {
                   type="text"
                   value={formData.houseId}
                   onChange={handleInputChange}
-                  className="mt-1 p-2 w-full border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
+                  className={`mt-1 p-2 w-full border ${errors.houseId ? 'border-red-500' : 'border-gray-300'} rounded focus:ring-blue-500 focus:border-blue-500`}
                   placeholder="Enter your House ID"
                   required
                 />
-                <p className="mt-1 text-xs text-gray-500">
-                  Your House ID can be found on your utility bill
-                </p>
+                {errors.houseId && <p className="text-xs text-red-600">{errors.houseId}</p>}
+                <p className="mt-1 text-xs text-gray-500">Your House ID can be found on your utility bill.</p>
               </div>
               
-              {/* Submit Button moved up into form section */}
+              {/* Submit Button */}
               <div className="mt-4">
                 <button
                   type="submit"
                   disabled={isSubmitting || !photo}
-                  className={`w-full py-2 px-4 rounded shadow-sm flex items-center justify-center text-sm font-medium 
-                    ${isSubmitting || !photo ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 text-white'}`}
+                  className={`w-full py-2 px-4 rounded shadow-sm flex items-center justify-center text-sm font-medium ${isSubmitting || !photo ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 text-white'}`}
                 >
                   {isSubmitting ? (
                     <>
@@ -203,14 +228,10 @@ const VotersRegister = () => {
                     'Complete Registration'
                   )}
                 </button>
-                {!photo && (
-                  <p className="mt-1 text-center text-xs text-red-600">
-                    Please capture your photo before submitting
-                  </p>
-                )}
+                {!photo && <p className="mt-1 text-center text-xs text-red-600">Please capture your photo before submitting</p>}
               </div>
               
-              {/* Privacy Note - more compact */}
+              {/* Privacy Note */}
               <div className="text-center text-xs text-gray-500">
                 By registering, you agree to our Privacy Policy. Your information will be used only for voter verification.
               </div>
@@ -230,9 +251,7 @@ const VotersRegister = () => {
                         className="h-36 object-cover rounded-lg shadow-sm"
                       />
                       <div className="absolute top-0 right-0 -mt-1 -mr-1">
-                        <span className="bg-green-500 text-white  px-1 py-0.5 rounded-full text-xs shadow-sm">
-                          ✓
-                        </span>
+                        <span className="bg-green-500 text-white px-1 py-0.5 rounded-full text-xs shadow-sm">✓</span>
                       </div>
                     </div>
                   </div>

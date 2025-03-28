@@ -11,6 +11,8 @@ import PollDashboard from './Pages/DigitalVoting/PollDashboard';
 import { AvHome } from './Pages/AvaiHome/AvHome';
 import ManageHomeAdds from './Pages/AvaiHome/ManageHomeAdds';
 import EditAvHome from './Pages/AvaiHome/EditAvHome';
+import PollUpdate from './Pages/DigitalVoting/PollUpdate';
+
 
 const App = () => {
   const [userRole, setUserRole] = useState(null); // Manage user role state
@@ -56,6 +58,7 @@ const App = () => {
                     <Route path="/avhome" element={<AvHome />} />
                     <Route path="/manageaddhome" element={<ManageHomeAdds />} />
                     <Route path="/editavhome/:id" element={<EditAvHome />} />
+                    <Route path="/pollupdate/:id" element={<PollUpdate />} />
                   </>
                 )}
                 <Route path="*" element={<Navigate to="/" />} />
