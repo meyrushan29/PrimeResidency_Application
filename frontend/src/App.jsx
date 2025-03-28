@@ -11,6 +11,8 @@ import AvailableHome from './Pages/AvailableHome';
 import Services from './Pages/Services';
 import ViewOneHome from './Pages/ViewOneHome';
 import Login from './Pages/Login';
+import MyViewAppointments from './Pages/MyViewAppointments';
+ 
 
 function App() {
   // State to check if user is authenticated
@@ -49,6 +51,11 @@ function App() {
         <Route path="/viewonehome/:id" element={
           isAuthenticated ? <ViewOneHome /> : <Navigate to="/login" />
         } />
+        <Route path="/my-appointments" element={
+          isAuthenticated ? <MyViewAppointments /> : <Navigate to="/login" />
+        } />
+         
+        
       </Routes>
       
       {/* Only show Footer if authenticated */}

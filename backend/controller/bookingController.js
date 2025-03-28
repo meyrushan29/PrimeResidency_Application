@@ -147,6 +147,7 @@ const cancelBooking = async (req, res) => {
   }
 };
 
+
 module.exports = { 
   createBooking, 
   getAvailableSlots, 

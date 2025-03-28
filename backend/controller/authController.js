@@ -6,7 +6,7 @@ const asyncHandler = require('express-async-handler');
 // @route   POST /api/auth/signup
 // @access  Public
 exports.signup = asyncHandler(async (req, res) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, fullName, phoneNumber, address, gender } = req.body;
 
   // Check if user already exists
   const userExists = await User.findOne({ $or: [{ email }, { username }] });
@@ -16,11 +16,15 @@ exports.signup = asyncHandler(async (req, res) => {
     throw new Error('User already exists');
   }
 
-  // Create user
+  // Create user with all fields
   const user = await User.create({
     username,
     email,
-    password
+    password,
+    fullName,
+    phoneNumber,
+    address,
+    gender
   });
 
   if (user) {
@@ -66,10 +70,25 @@ exports.login = asyncHandler(async (req, res) => {
 // @route   GET /api/auth/me
 // @access  Private
 exports.getMe = asyncHandler(async (req, res) => {
+  // Get the full user document with all fields
   const user = await User.findById(req.user.id);
+  
+  if (!user) {
+    res.status(404);
+    throw new Error('User not found');
+  }
+  
   res.status(200).json({
     success: true,
-    data: user
+    data: {
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      fullName: user.fullName,
+      phoneNumber: user.phoneNumber,
+      address: user.address,
+      gender: user.gender
+    }
   });
 });
 
@@ -81,7 +100,7 @@ exports.logout = asyncHandler(async (req, res) => {
     expires: new Date(Date.now() + 10 * 1000),
     httpOnly: true
   });
-
+  
   res.status(200).json({
     success: true,
     data: {}
@@ -105,11 +124,24 @@ const sendTokenResponse = (user, statusCode, res) => {
     options.secure = true;
   }
 
+  // Remove password from output
+  user.password = undefined;
+
   res
     .status(statusCode)
     .cookie('token', token, options)
     .json({
       success: true,
-      token
+      token,
+      user: {
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+        fullName: user.fullName,
+        phoneNumber: user.phoneNumber,
+        address: user.address,
+        gender: user.gender
+      }
     });
 };
+

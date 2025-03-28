@@ -3,20 +3,20 @@ const mongoose = require('mongoose');
 const bookingSchema = new mongoose.Schema({
   apartmentId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Apartment', // Referencing the Apartment model
+    ref: 'Apartment',
     required: true,
   },
   date: {
-    type: Date,  // Changed to Date type for better handling of dates
+    type: Date,
     required: true,
   },
   timeSlot: {
-    type: String, // e.g., '15:00'
+    type: String,
     required: true,
   },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User', // Assuming you have a User model for booking users
+    ref: 'User',
     required: true,
   },
   status: {
