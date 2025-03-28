@@ -1,6 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
+// Modal Component for Confirmation
+const Modal = ({ isOpen, onClose, onConfirm }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center z-50">
+      <div className="bg-white p-8 rounded-lg shadow-lg max-w-sm w-full">
+        <h2 className="text-xl font-semibold text-gray-700 mb-4">Confirm Deletion</h2>
+        <p className="text-gray-600 mb-4">Are you sure you want to delete this voter?</p>
+        <div className="flex justify-end space-x-4">
+          <button onClick={onClose} className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md">Cancel</button>
+          <button
+            onClick={() => { onConfirm(); onClose(); }}
+            className="px-4 py-2 bg-red-600 text-white rounded-md"
+          >
+            Confirm
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const VotersManagement = () => {
   const [voters, setVoters] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -9,6 +32,8 @@ const VotersManagement = () => {
   const [filter, setFilter] = useState('all');
   const [page] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [voterToDelete, setVoterToDelete] = useState(null);
 
   useEffect(() => {
     const fetchVoters = async () => {
@@ -32,7 +57,7 @@ const VotersManagement = () => {
       const verificationDate = isVerified ? new Date().toISOString() : null;
       await axios.patch(`http://localhost:8001/api/voters/${voterId}`, {
         verified: isVerified,
-        verificationDate: verificationDate
+        verificationDate: verificationDate,
       });
 
       setVoters(prevVoters =>
@@ -45,14 +70,17 @@ const VotersManagement = () => {
     }
   };
 
-  const handleDeleteVoter = async (voterId) => {
-    if (window.confirm('Are you sure you want to delete this voter?')) {
-      try {
-        await axios.delete(`http://localhost:8001/api/voters/${voterId}`);
-        setVoters(voters.filter(voter => voter._id !== voterId)); // Remove deleted voter from the list
-      } catch (err) {
-        alert('Failed to delete voter. Please try again.');
-      }
+  const handleDeleteVoter = (voterId) => {
+    setVoterToDelete(voterId);
+    setIsModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    try {
+      await axios.delete(`http://localhost:8001/api/voters/${voterToDelete}`);
+      setVoters(voters.filter(voter => voter._id !== voterToDelete)); // Remove deleted voter from the list
+    } catch (err) {
+      alert('Failed to delete voter. Please try again.');
     }
   };
 
@@ -111,6 +139,8 @@ const VotersManagement = () => {
               </div>
             ) : error ? (
               <div className="p-6 text-center text-red-500">{error}</div>
+            ) : filteredVoters.length === 0 ? (
+              <div className="p-6 text-center text-gray-500">No results found</div>
             ) : (
               <div className="overflow-x-auto max-h-80">
                 <table className="min-w-full divide-y divide-gray-200">
@@ -153,15 +183,23 @@ const VotersManagement = () => {
                           </span>
                         </td>
                         <td className="px-6 py-4">{new Date(voter.registrationDate).toLocaleDateString()}</td>
-                        <td className="px-6 py-4">{voter.verificationDate ? new Date(voter.verificationDate).toLocaleDateString() : 'Not Verified'}</td>
+                        <td className="px-6 py-4">
+                          {voter.verificationDate ? new Date(voter.verificationDate).toLocaleDateString() : 'Not Verified'}
+                        </td>
                         <td className="px-6 py-4 text-right">
                           <button
                             onClick={() => handleVerificationStatus(voter._id, !voter.verified)}
-                            className={`text-sm ${
-                              voter.verified ? 'text-yellow-600' : 'text-green-600'
-                            }`}
+                            disabled={voter.verified}
+                            className={`text-sm ${voter.verified ? 'text-gray-400 cursor-not-allowed' : 'text-green-600'}`}
                           >
-                            {voter.verified ? 'Unverify' : 'Verify'}
+                            Verify
+                          </button>
+                          <button
+                            onClick={() => handleVerificationStatus(voter._id, false)}
+                            disabled={!voter.verified}
+                            className={`ml-2 text-sm ${!voter.verified ? 'text-gray-400 cursor-not-allowed' : 'text-yellow-600'}`}
+                          >
+                            Unverify
                           </button>
                           <button
                             onClick={() => handleDeleteVoter(voter._id)}
@@ -179,6 +217,9 @@ const VotersManagement = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal Component */}
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onConfirm={confirmDelete} />
     </div>
   );
 };
