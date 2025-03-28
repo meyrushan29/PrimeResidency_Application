@@ -74,6 +74,12 @@ export const AvHome = () => {
     if (!formData.description.trim()) errors.description = "Description is required";
     if (formData.images.length < 3) errors.images = "At least 3 images are required";
     
+    // Validate bedrooms
+    if (!formData.bedrooms) errors.bedrooms = "Number of bedrooms is required";
+    
+    // Validate bathrooms
+    if (!formData.bathrooms) errors.bathrooms = "Number of bathrooms is required";
+    
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -209,15 +215,17 @@ export const AvHome = () => {
               name="bedrooms"
               value={formData.bedrooms}
               onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              className={`w-full p-2 border ${formErrors.bedrooms ? 'border-red-500' : 'border-gray-300'} rounded-md focus:ring-blue-500 focus:border-blue-500`}
               required
             >
+              <option value="">Select number of bedrooms</option>
               <option value="1">1</option>
               <option value="2">2</option>
               <option value="3">3</option>
               <option value="4">4</option>
               <option value="5+">5+</option>
             </select>
+            {formErrors.bedrooms && <p className="mt-1 text-xs text-red-500">{formErrors.bedrooms}</p>}
           </div>
           
           <div>
@@ -226,15 +234,17 @@ export const AvHome = () => {
               name="bathrooms"
               value={formData.bathrooms}
               onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              className={`w-full p-2 border ${formErrors.bathrooms ? 'border-red-500' : 'border-gray-300'} rounded-md focus:ring-blue-500 focus:border-blue-500`}
               required
             >
+              <option value="">Select number of bathrooms</option>
               <option value="1">1</option>
               <option value="2">2</option>
               <option value="3">3</option>
               <option value="4">4</option>
               <option value="5+">5+</option>
             </select>
+            {formErrors.bathrooms && <p className="mt-1 text-xs text-red-500">{formErrors.bathrooms}</p>}
           </div>
         </div>
         

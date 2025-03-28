@@ -34,6 +34,7 @@ app.use('/uploads', express.static('uploads'));
 // Serve images from homeimg directory
 app.use('/homeimg', express.static('homeimg'));
 
+
 // Connect to the database
 connectDB();
 
