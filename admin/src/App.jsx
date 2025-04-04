@@ -12,6 +12,13 @@ import { AvHome } from './Pages/AvaiHome/AvHome';
 import ManageHomeAdds from './Pages/AvaiHome/ManageHomeAdds';
 import EditAvHome from './Pages/AvaiHome/EditAvHome';
 import PollUpdate from './Pages/DigitalVoting/PollUpdate';
+import AddOwner from './Pages/HomeOwnerDetails/AddOwner';
+import EditOwner from './Pages/HomeOwnerDetails/EditOnwer';
+import OwnerServices from './Pages/Services/OwnerServices';
+import CleaningForm from './Pages/Services/CleaningForm';
+import HealthForm from './Pages/Services/HealthForm';
+import VerifyServices from './Pages/Services/VerifyServices';
+import FoodForm from './Pages/Services/FoodForm';
 
 
 const App = () => {
@@ -48,6 +55,12 @@ const App = () => {
                   <>
                     <Route path="/register" element={<VotersRegister />} />
                     <Route path="/voting" element={<Voting />} />
+                    <Route path="/ownerserevices" element={<OwnerServices />} />
+                <Route path="/cleaningform" element={<CleaningForm/>} />
+                <Route path="/healthform" element={<HealthForm />} />
+                <Route path="/verifyservices" element={<VerifyServices />} />
+                <Route path="/foodform" element={<FoodForm />} />
+
                   </>
                 )}
                 {userRole === 'admin' && (
@@ -59,9 +72,12 @@ const App = () => {
                     <Route path="/manageaddhome" element={<ManageHomeAdds />} />
                     <Route path="/editavhome/:id" element={<EditAvHome />} />
                     <Route path="/pollupdate/:id" element={<PollUpdate />} />
+                    <Route path="/addowner" element={<AddOwner />} />
+                    <Route path="/editowner" element={<EditOwner />} />
                   </>
                 )}
                 <Route path="*" element={<Navigate to="/" />} />
+                 
               </Routes>
             </main>
           </div>

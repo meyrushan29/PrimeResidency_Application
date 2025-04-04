@@ -1,16 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import { FiEdit, FiTrash2, FiPlus, FiChevronDown, FiChevronUp } from 'react-icons/fi';
+import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
+import { 
+  FiEdit, 
+  FiTrash2, 
+  FiPlus, 
+  FiChevronDown, 
+  FiChevronUp, 
+  FiSearch, 
+  FiDownload 
+} from 'react-icons/fi';
 
 const ManageHomeAdds = () => {
   const [apartments, setApartments] = useState([]);
+  const [filteredApartments, setFilteredApartments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [apartmentToDelete, setApartmentToDelete] = useState(null);
   const [imageErrors, setImageErrors] = useState({});
   const [sortConfig, setSortConfig] = useState({ key: 'title', direction: 'ascending' });
+
+  // Search State
+  const [searchTerm, setSearchTerm] = useState('');
 
   // Base URL for API requests
   const baseURL = 'http://localhost:8001';
@@ -19,24 +32,42 @@ const ManageHomeAdds = () => {
     fetchApartments();
   }, []);
 
+  // Apply search whenever search term changes
+  useEffect(() => {
+    applySearch();
+  }, [searchTerm, apartments]);
+
   const fetchApartments = async () => {
     try {
       setLoading(true);
       const response = await axios.get(`${baseURL}/api/apartments`);
       
-      // Handle different response structures
       const apartmentsData = response.data?.data || response.data || [];
       const data = Array.isArray(apartmentsData) ? apartmentsData : [];
       
-      console.log('Apartments data:', data);
-      
       setApartments(data);
+      setFilteredApartments(data);
       setLoading(false);
     } catch (err) {
       console.error('Error fetching apartments:', err);
       setError('Failed to fetch apartments: ' + (err.message || 'Unknown error'));
       setLoading(false);
     }
+  };
+
+  const applySearch = () => {
+    let result = apartments;
+
+    // Search filter
+    if (searchTerm) {
+      const searchTermLower = searchTerm.toLowerCase();
+      result = result.filter(apt => 
+        (apt.title?.toLowerCase().includes(searchTermLower)) ||
+        (apt.description?.toLowerCase().includes(searchTermLower))
+      );
+    }
+
+    setFilteredApartments(result);
   };
 
   const handleDeleteClick = (apartment) => {
@@ -63,23 +94,19 @@ const ManageHomeAdds = () => {
     setApartmentToDelete(null);
   };
 
-  // Function to correctly format image URLs from MongoDB
   const getImageUrl = (imagePath) => {
     if (!imagePath) {
-      return '/images/default-image.jpg'; // Default image in case of error
+      return '/images/default-image.jpg'; 
     }
     
     let url;
     
-    // If it's already a full URL, return it as is
     if (imagePath.startsWith('http')) {
       url = imagePath;
     }
-    // If the image path starts with '/homeimg', construct the full URL
     else if (imagePath.startsWith('/homeimg')) {
       url = `${baseURL}${imagePath}`;
     }
-    // For paths not starting with '/' and no 'http', construct the full URL
     else {
       url = `${baseURL}/homeimg/apartments/${imagePath}`;
     }
@@ -104,7 +131,7 @@ const ManageHomeAdds = () => {
   };
 
   const getSortedItems = () => {
-    const sortableItems = [...apartments];
+    const sortableItems = [...filteredApartments];
     if (sortConfig.key) {
       sortableItems.sort((a, b) => {
         const aValue = a[sortConfig.key] || '';
@@ -139,6 +166,107 @@ const ManageHomeAdds = () => {
     return null;
   };
 
+  const generatePDFReport = async () => {
+    const pdfDoc = await PDFDocument.create();
+    const page = pdfDoc.addPage();
+    const { height } = page.getSize();
+    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+
+    // Title
+    page.drawText('Apartment Listings Report', {
+      x: 50,
+      y: height - 50,
+      size: 18,
+      font,
+      color: rgb(0, 0, 0)
+    });
+
+    // Table headers
+    const headers = ['Title', 'Price', 'Area', 'Bedrooms', 'Bathrooms'];
+    const data = filteredApartments.map(apt => [
+      apt.title || 'N/A',
+      `$${apt.price?.toLocaleString() || 'N/A'}`,
+      `${apt.area || 'N/A'} sq ft`,
+      apt.bedrooms || 'N/A',
+      apt.bathrooms || 'N/A'
+    ]);
+
+    let yOffset = height - 100;
+    
+    // Draw headers
+    headers.forEach((header, index) => {
+      page.drawText(header, {
+        x: 50 + index * 120,
+        y: yOffset,
+        size: 12,
+        font,
+        color: rgb(0.2, 0.2, 0.2)
+      });
+    });
+
+    yOffset -= 20;
+
+    // Draw data rows
+    data.forEach(row => {
+      row.forEach((cell, index) => {
+        page.drawText(cell, {
+          x: 50 + index * 120,
+          y: yOffset,
+          size: 10,
+          font,
+          color: rgb(0, 0, 0)
+        });
+      });
+      yOffset -= 20;
+    });
+
+    // Summary statistics
+    const stats = {
+      totalListings: filteredApartments.length,
+      totalValue: filteredApartments.reduce((sum, apt) => sum + (parseFloat(apt.price) || 0), 0),
+      avgPrice: filteredApartments.reduce((sum, apt) => sum + (parseFloat(apt.price) || 0), 0) / filteredApartments.length,
+    };
+
+    page.drawText('Summary Statistics', {
+      x: 50,
+      y: yOffset - 30,
+      size: 14,
+      font,
+      color: rgb(0, 0, 0)
+    });
+
+    page.drawText(`Total Listings: ${stats.totalListings}`, {
+      x: 50,
+      y: yOffset - 50,
+      size: 10,
+      font,
+      color: rgb(0, 0, 0)
+    });
+
+    page.drawText(`Total Value: $${stats.totalListings ? stats.totalValue.toLocaleString() : 0}`, {
+      x: 50,
+      y: yOffset - 70,
+      size: 10,
+      font,
+      color: rgb(0, 0, 0)
+    });
+
+    page.drawText(`Average Price: $${stats.totalListings ? stats.avgPrice.toLocaleString() : 0}`, {
+      x: 50,
+      y: yOffset - 90,
+      size: 10,
+      font,
+      color: rgb(0, 0, 0)
+    });
+
+    const pdfBytes = await pdfDoc.save();
+    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'apartment_listings_report.pdf';
+    link.click();
+  };
+
   if (loading) {
     return (
       <div className="container mx-auto p-4">
@@ -169,15 +297,37 @@ const ManageHomeAdds = () => {
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Manage Apartments</h1>
-        <Link 
-          to="/avhome" 
-          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md flex items-center shadow-md transition-colors"
-        >
-          <FiPlus className="mr-2" /> Add New Apartment
-        </Link>
+        <div className="flex space-x-2">
+          <button 
+            onClick={generatePDFReport}
+            className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md flex items-center shadow-md transition-colors"
+          >
+            <FiDownload className="mr-2" /> Generate Report
+          </button>
+          <Link 
+            to="/avhome" 
+            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md flex items-center shadow-md transition-colors"
+          >
+            <FiPlus className="mr-2" /> Add New Apartment
+          </Link>
+        </div>
       </div>
 
-      {apartments.length === 0 ? (
+      {/* Search Section */}
+      <div className="mb-4">
+        <div className="relative">
+          <input 
+            type="text" 
+            placeholder="Search apartments..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full p-2 pl-8 border rounded-md"
+          />
+          <FiSearch className="absolute left-2 top-3 text-gray-400" />
+        </div>
+      </div>
+
+      {filteredApartments.length === 0 ? (
         <div className="bg-gray-50 p-8 text-center rounded-lg shadow">
           <div className="text-xl mb-4">
             No apartment listings found.

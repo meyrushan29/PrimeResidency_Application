@@ -21,11 +21,17 @@ const VotersRegister = () => {
     const newErrors = {};
     const nameRegex = /^[a-zA-Z\s]+$/; // Name should only contain letters and spaces
     const houseIdRegex = /^H-\d+$/;  // House ID format: H-11, H-22, etc.
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/; // Comprehensive email validation
 
     if (!formData.name) newErrors.name = 'Full name is required.';
     else if (!nameRegex.test(formData.name)) newErrors.name = 'Name can only contain letters and spaces.';
 
-    if (!formData.email) newErrors.email = 'Email address is required.';
+    if (!formData.email) {
+      newErrors.email = 'Email address is required.';
+    } else if (!emailRegex.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email address.';
+    }
+
     if (!formData.houseId) newErrors.houseId = 'House ID is required.';
     else if (!houseIdRegex.test(formData.houseId)) newErrors.houseId = 'House ID must be in the format H-11, H-12, etc.';
     
