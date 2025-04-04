@@ -4,6 +4,8 @@ import { Link, useNavigate } from 'react-router-dom';
 const SideBar = () => {
   const [isVotingExpanded, setIsVotingExpanded] = useState(false);
   const [isHomeExpanded, setIsHomeExpanded] = useState(false);
+  const [isOwnerExpanded,setIsOwnerExpanded]  = useState(false)
+  const [isServiceExpanded,setIsServiceExpanded]  = useState(false)
   const [userRole, setUserRole] = useState(null); // Store the user role directly
   const [isLoading, setIsLoading] = useState(true); // Loading state for role fetching
 
@@ -109,6 +111,45 @@ const SideBar = () => {
                   </ul>
                 )}
               </li>
+
+               <li>
+
+              <button
+                onClick={() => setIsOwnerExpanded(!isOwnerExpanded)}
+                className="w-full flex items-center justify-between p-2 text-gray-700 rounded hover:bg-gray-200 hover:text-gray-900 transition-all"
+              >
+                <div className="flex items-center">
+                <span className="mr-3">👤</span>
+                  <span>Owner</span>
+                </div>
+                <span className="text-sm">{isOwnerExpanded ? '▼' : '►'}</span>
+              </button>
+
+              {isOwnerExpanded && (
+                <ul className="ml-6 mt-2 space-y-1">
+                  <li>
+                  <Link to="/addowner" className="flex items-center p-2 text-gray-600 rounded hover:bg-gray-200 hover:text-gray-900 transition-all">
+              <span className="mr-2">•</span>
+              <span>Add Owner</span>
+            </Link>
+                  </li>
+                  <li>
+                    <Link to="/editowner" className="flex items-center p-2 text-gray-600 rounded hover:bg-gray-200 hover:text-gray-900 transition-all">
+                      <span className="mr-2">•</span>
+                      <span>Edit Owner</span>
+                    </Link>
+                    </li>
+                    
+                  </ul>
+              
+              )}
+
+             
+                </li>
+            
+ 
+              
+
             </>
           )}
 
@@ -142,7 +183,49 @@ const SideBar = () => {
                   </li>
                 </ul>
               )}
-            </li>
+
+<li>
+
+<button
+  onClick={() => setIsServiceExpanded(!isServiceExpanded)}
+  className="w-full flex items-center justify-between p-2 text-gray-700 rounded hover:bg-gray-200 hover:text-gray-900 transition-all"
+>
+  <div className="flex items-center">
+    <span className="mr-3">🏢</span>
+    <span>Services</span>
+  </div>
+  <span className="text-sm">{isServiceExpanded ? '▼' : '►'}</span>
+</button>
+
+{isServiceExpanded && (
+  <ul className="ml-6 mt-2 space-y-1">
+    <li>
+    <Link to="/ownerserevices" className="flex items-center p-2 text-gray-600 rounded hover:bg-gray-200 hover:text-gray-900 transition-all">
+<span className="mr-2">•</span>
+<span>Owner Services</span>
+</Link>
+    </li>
+    <li>
+      <Link to="/verifyservices" className="flex items-center p-2 text-gray-600 rounded hover:bg-gray-200 hover:text-gray-900 transition-all">
+        <span className="mr-2">•</span>
+        <span>Verify</span>
+      </Link>
+      </li>
+      
+    </ul>
+
+)}
+
+
+
+  </li>
+</li>
+
+
+            
+
+            
+
           )}
 
           {/* Handle unauthorized or invalid roles */}
