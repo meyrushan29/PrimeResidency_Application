@@ -30,7 +30,8 @@ const createBooking = async (req, res) => {
     const existingBooking = await Booking.findOne({ 
       apartmentId, 
       date: new Date(date), 
-      timeSlot 
+      timeSlot,
+      status: { $ne: 'cancelled' } // Ignore cancelled bookings
     });
     
     if (existingBooking) {
@@ -81,7 +82,8 @@ const getAvailableSlots = async (req, res) => {
       date: { 
         $gte: formattedDate,
         $lte: endOfDay
-      } 
+      },
+      status: { $ne: 'cancelled' } // Ignore cancelled bookings
     });
 
     // List of all possible time slots
@@ -147,10 +149,75 @@ const cancelBooking = async (req, res) => {
   }
 };
 
+// Update a booking
+const updateBooking = async (req, res) => {
+  const { bookingId } = req.params;
+  const { date, timeSlot } = req.body;
+  
+  if (!mongoose.Types.ObjectId.isValid(bookingId)) {
+    return res.status(400).json({ message: 'Invalid booking ID' });
+  }
+  
+  if (!date || isNaN(Date.parse(date))) {
+    return res.status(400).json({ message: 'Invalid date format' });
+  }
+  
+  if (!timeSlot) {
+    return res.status(400).json({ message: 'Time slot is required' });
+  }
+  
+  try {
+    // Find the current booking
+    const booking = await Booking.findById(bookingId);
+    
+    if (!booking) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+    
+    if (booking.status !== 'confirmed') {
+      return res.status(400).json({ message: 'Only confirmed bookings can be updated' });
+    }
+    
+    // Simply use the date string directly without timezone manipulation
+    // Adding T12:00:00 to set the time to noon to avoid date shifting due to timezone conversions
+    const formattedDate = new Date(date + 'T12:00:00');
+    
+    // Check if the new date/time slot is already booked (excluding the current booking)
+    const existingBooking = await Booking.findOne({
+      apartmentId: booking.apartmentId,
+      date: formattedDate,
+      timeSlot,
+      _id: { $ne: bookingId },
+      status: { $ne: 'cancelled' }
+    });
+    
+    if (existingBooking) {
+      return res.status(400).json({ message: 'This time slot is already booked' });
+    }
+    
+    // Update the booking
+    booking.date = formattedDate;
+    booking.timeSlot = timeSlot;
+    
+    await booking.save();
+    
+    return res.json({ 
+      message: 'Booking updated successfully',
+      booking: {
+        ...booking._doc,
+        date: formattedDate
+      }
+    });
+  } catch (error) {
+    console.error('Error updating booking:', error);
+    return res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
 
 module.exports = { 
   createBooking, 
   getAvailableSlots, 
   getUserBookings, 
-  cancelBooking 
+  cancelBooking,
+  updateBooking
 };

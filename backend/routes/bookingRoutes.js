@@ -4,7 +4,8 @@ const {
   createBooking, 
   getAvailableSlots, 
   getUserBookings, 
-  cancelBooking 
+  cancelBooking,
+  updateBooking
 } = require('../controller/bookingController');
 
 // Create a new booking
@@ -18,5 +19,8 @@ router.get('/user-bookings/:userId', getUserBookings);
 
 // Cancel a booking
 router.put('/cancel-booking/:bookingId', cancelBooking);
+
+// Update a booking
+router.put('/update-booking/:bookingId', updateBooking);
 
 module.exports = router;
