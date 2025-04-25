@@ -112,6 +112,20 @@ const SideBar = () => {
                 )}
               </li>
 
+              <li>
+                <Link
+                  to="/adbookings"
+                  className="flex items-center justify-between p-2 text-gray-600 rounded hover:bg-gray-200 hover:text-gray-900 transition-all"
+                >
+                  <div className="flex items-center">
+                    <span className="mr-3">🏠</span>
+                    <span>Booking to view</span>
+                  </div>
+                  <span className="text-sm">►</span>
+                </Link>
+              </li>
+
+
                <li>
 
               <button

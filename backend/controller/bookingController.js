@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 
 // Create a new booking
 const createBooking = async (req, res) => {
-  const { apartmentId, date, timeSlot, userId } = req.body;
+  const { apartmentId, date, timeSlot, userId, name, phoneNumber } = req.body;
 
   // Validate the request data
   if (!mongoose.Types.ObjectId.isValid(apartmentId)) {
@@ -19,6 +19,14 @@ const createBooking = async (req, res) => {
     return res.status(400).json({ message: 'Invalid date format' });
   }
 
+  if (!name) {
+    return res.status(400).json({ message: 'Name is required' });
+  }
+
+  if (!phoneNumber) {
+    return res.status(400).json({ message: 'Phone number is required' });
+  }
+
   try {
     // Check if the apartment exists
     const apartment = await Apartment.findById(apartmentId);
@@ -31,27 +39,67 @@ const createBooking = async (req, res) => {
       apartmentId, 
       date: new Date(date), 
       timeSlot,
-      status: { $ne: 'cancelled' } // Ignore cancelled bookings
+      status: { $nin: ['cancelled'] } // Ignore cancelled bookings
     });
     
     if (existingBooking) {
-      return res.status(400).json({ message: 'This time slot is already booked' });
+      return res.status(400).json({ message: 'This time slot is already booked or pending approval' });
     }
 
-    // Create and save the new booking
+    // Create and save the new booking with 'pending' status
     const newBooking = new Booking({
       apartmentId,
       date: new Date(date),
       timeSlot,
       userId,
-      status: 'confirmed'
+      name,
+      phoneNumber,
+      status: 'pending' // Set default status to pending
     });
 
     await newBooking.save();
-    return res.status(201).json({ message: 'Booking confirmed', booking: newBooking });
+    return res.status(201).json({ message: 'Booking request submitted and pending approval', booking: newBooking });
   } catch (error) {
     console.error('Error creating booking:', error);
     return res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+// Get a single booking by ID
+const getBookingById = async (req, res) => {
+  try {
+    const { bookingId } = req.params;
+
+    // Validate booking ID format
+    if (!mongoose.Types.ObjectId.isValid(bookingId)) {
+      return res.status(400).json({ success: false, message: 'Invalid booking ID format' });
+    }
+
+    // Find booking by ID and populate apartment details
+    const booking = await Booking.findById(bookingId)
+      .populate('apartmentId')
+      .lean(); // Using lean() for better performance
+    
+    // Check if booking exists
+    if (!booking) {
+      return res.status(404).json({ success: false, message: 'Booking not found' });
+    }
+
+    // Format the date and time for frontend consumption
+    booking.formattedDate = new Date(booking.date).toISOString().split('T')[0];
+
+    // Return successful response with booking data
+    return res.status(200).json({ 
+      success: true, 
+      booking 
+    });
+  } catch (error) {
+    console.error('Error fetching booking:', error);
+    return res.status(500).json({ 
+      success: false, 
+      message: 'Failed to retrieve booking details', 
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 };
 
@@ -83,7 +131,7 @@ const getAvailableSlots = async (req, res) => {
         $gte: formattedDate,
         $lte: endOfDay
       },
-      status: { $ne: 'cancelled' } // Ignore cancelled bookings
+      status: { $nin: ['cancelled'] } // Ignore cancelled bookings but consider both pending and confirmed
     });
 
     // List of all possible time slots
@@ -152,7 +200,7 @@ const cancelBooking = async (req, res) => {
 // Update a booking
 const updateBooking = async (req, res) => {
   const { bookingId } = req.params;
-  const { date, timeSlot } = req.body;
+  const { date, timeSlot, name, phoneNumber } = req.body;
   
   if (!mongoose.Types.ObjectId.isValid(bookingId)) {
     return res.status(400).json({ message: 'Invalid booking ID' });
@@ -165,6 +213,14 @@ const updateBooking = async (req, res) => {
   if (!timeSlot) {
     return res.status(400).json({ message: 'Time slot is required' });
   }
+
+  if (!name) {
+    return res.status(400).json({ message: 'Name is required' });
+  }
+
+  if (!phoneNumber) {
+    return res.status(400).json({ message: 'Phone number is required' });
+  }
   
   try {
     // Find the current booking
@@ -174,39 +230,44 @@ const updateBooking = async (req, res) => {
       return res.status(404).json({ message: 'Booking not found' });
     }
     
-    if (booking.status !== 'confirmed') {
-      return res.status(400).json({ message: 'Only confirmed bookings can be updated' });
+    if (booking.status === 'cancelled') {
+      return res.status(400).json({ message: 'Cancelled bookings cannot be updated' });
     }
     
-    // Simply use the date string directly without timezone manipulation
-    // Adding T12:00:00 to set the time to noon to avoid date shifting due to timezone conversions
-    const formattedDate = new Date(date + 'T12:00:00');
+    // Format the date properly
+    const formattedDate = new Date(date);
+    formattedDate.setHours(12, 0, 0, 0); // Set time to noon to avoid timezone issues
     
     // Check if the new date/time slot is already booked (excluding the current booking)
     const existingBooking = await Booking.findOne({
       apartmentId: booking.apartmentId,
-      date: formattedDate,
+      date: {
+        $gte: new Date(formattedDate.setHours(0, 0, 0, 0)),
+        $lte: new Date(formattedDate.setHours(23, 59, 59, 999))
+      },
       timeSlot,
       _id: { $ne: bookingId },
-      status: { $ne: 'cancelled' }
+      status: { $nin: ['cancelled'] }
     });
     
     if (existingBooking) {
-      return res.status(400).json({ message: 'This time slot is already booked' });
+      return res.status(400).json({ message: 'This time slot is already booked or pending approval' });
     }
     
-    // Update the booking
+    // Update the booking - status resets to pending if it was previously confirmed
+    // User edits should always go back to pending for re-approval
     booking.date = formattedDate;
     booking.timeSlot = timeSlot;
+    booking.name = name;
+    booking.phoneNumber = phoneNumber;
+    booking.status = 'pending'; // Reset to pending after user edits
+    booking.updatedAt = new Date();
     
     await booking.save();
     
     return res.json({ 
-      message: 'Booking updated successfully',
-      booking: {
-        ...booking._doc,
-        date: formattedDate
-      }
+      message: 'Booking updated successfully and pending approval',
+      booking
     });
   } catch (error) {
     console.error('Error updating booking:', error);
@@ -214,10 +275,66 @@ const updateBooking = async (req, res) => {
   }
 };
 
+// Admin - Confirm a pending booking 
+const confirmBooking = async (req, res) => {
+  const { bookingId } = req.params;
+  
+  if (!mongoose.Types.ObjectId.isValid(bookingId)) {
+    return res.status(400).json({ message: 'Invalid booking ID' });
+  }
+
+  try {
+    const booking = await Booking.findById(bookingId);
+    
+    if (!booking) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+
+    if (booking.status !== 'pending') {
+      return res.status(400).json({ message: `Cannot confirm booking with status: ${booking.status}` });
+    }
+
+    booking.status = 'confirmed';
+    await booking.save();
+
+    return res.json({ message: 'Booking confirmed successfully', booking });
+  } catch (error) {
+    console.error('Error confirming booking:', error);
+    return res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+// Get all bookings (admin only)
+const getAllBookings = async (req, res) => {
+  try {
+    // You may want to add pagination here for better performance with large datasets
+    const bookings = await Booking.find()
+      .populate('apartmentId')
+      .populate('userId', 'email -_id') // Only include email from user, exclude _id
+      .sort({ date: -1 }); // Most recent bookings first
+    
+    return res.status(200).json({ 
+      success: true, 
+      bookings,
+      count: bookings.length
+    });
+  } catch (error) {
+    console.error('Error fetching all bookings:', error);
+    return res.status(500).json({ 
+      success: false, 
+      message: 'Server error', 
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
 module.exports = { 
-  createBooking, 
+  createBooking,
+  getBookingById, 
   getAvailableSlots, 
   getUserBookings, 
   cancelBooking,
-  updateBooking
+  updateBooking,
+  confirmBooking, // New function for admin to confirm bookings
+  getAllBookings
 };

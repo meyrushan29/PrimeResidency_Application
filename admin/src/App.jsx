@@ -19,6 +19,7 @@ import CleaningForm from './Pages/Services/CleaningForm';
 import HealthForm from './Pages/Services/HealthForm';
 import VerifyServices from './Pages/Services/VerifyServices';
 import FoodForm from './Pages/Services/FoodForm';
+import AllBookings from './Pages/Bookings/AllBookings';
 
 
 const App = () => {
@@ -74,6 +75,7 @@ const App = () => {
                     <Route path="/pollupdate/:id" element={<PollUpdate />} />
                     <Route path="/addowner" element={<AddOwner />} />
                     <Route path="/editowner" element={<EditOwner />} />
+                    <Route path="/adbookings" element={<AllBookings />} />
                   </>
                 )}
                 <Route path="*" element={<Navigate to="/" />} />
