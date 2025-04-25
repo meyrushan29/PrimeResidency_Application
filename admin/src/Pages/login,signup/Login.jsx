@@ -36,7 +36,7 @@ const Login = ({ onLoginSuccess }) => {
 
       // Navigate to the homepage
       navigate('/');
-    } catch (err) {
+    } catch {
       setError('Invalid username or password');
     } finally {
       setIsLoading(false);
@@ -50,7 +50,7 @@ const Login = ({ onLoginSuccess }) => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:8001/api/authaccount/register', {
+      await axios.post('http://localhost:8001/api/authaccount/register', {
         username,
         password,
       });

@@ -21,7 +21,6 @@ import VerifyServices from './Pages/Services/VerifyServices';
 import FoodForm from './Pages/Services/FoodForm';
 import AllBookings from './Pages/Bookings/AllBookings';
 
-
 const App = () => {
   const [userRole, setUserRole] = useState(null); // Manage user role state
   const navigate = useNavigate();  // Initialize navigate here
@@ -33,21 +32,32 @@ const App = () => {
       try {
         const decodedToken = JSON.parse(atob(token.split('.')[1])); // Decode JWT
         setUserRole(decodedToken.role);
-      } catch (error) {
+      } catch {
         // If token is invalid, clear localStorage and redirect to login
         localStorage.removeItem('token');
+        setUserRole(null); // Ensure state is cleared
         navigate('/login');
       }
     } else {
+      setUserRole(null); // Clear userRole if no token
       navigate('/login');
     }
   }, [navigate]);
+
+  const handleLogout = () => {
+    // Clear user data from localStorage
+    localStorage.removeItem('token');
+    // Reset userRole state
+    setUserRole(null);
+    // Redirect to login page
+    navigate('/login');
+  };
 
   return (
     <div className="flex flex-col h-screen">
       {userRole ? (
         <>
-          <NavBar />
+          <NavBar onLogout={handleLogout} />
           <div className="flex flex-1 overflow-hidden">
             <SideBar />
             <main className="flex-1 p-6 overflow-auto">
@@ -57,11 +67,10 @@ const App = () => {
                     <Route path="/register" element={<VotersRegister />} />
                     <Route path="/voting" element={<Voting />} />
                     <Route path="/ownerserevices" element={<OwnerServices />} />
-                <Route path="/cleaningform" element={<CleaningForm/>} />
-                <Route path="/healthform" element={<HealthForm />} />
-                <Route path="/verifyservices" element={<VerifyServices />} />
-                <Route path="/foodform" element={<FoodForm />} />
-
+                    <Route path="/cleaningform" element={<CleaningForm />} />
+                    <Route path="/healthform" element={<HealthForm />} />
+                    <Route path="/verifyservices" element={<VerifyServices />} />
+                    <Route path="/foodform" element={<FoodForm />} />
                   </>
                 )}
                 {userRole === 'admin' && (
@@ -79,7 +88,6 @@ const App = () => {
                   </>
                 )}
                 <Route path="*" element={<Navigate to="/" />} />
-                 
               </Routes>
             </main>
           </div>
