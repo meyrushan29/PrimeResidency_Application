@@ -40,19 +40,24 @@ const AllBookings = () => {
   // Handle confirm booking
   const handleConfirmBooking = async (bookingId) => {
     try {
-      await axios.put(`http://localhost:8001/api/admin/confirm-booking/${bookingId}`);
+      // Make the API call to confirm the booking
+      const response = await axios.put(`http://localhost:8001/api/admin/bookings/confirm/${bookingId}`);
       
-      // Update local state to reflect the change
-      setBookings(prevBookings => 
-        prevBookings.map(booking => 
-          booking._id === bookingId ? {...booking, status: 'confirmed'} : booking
-        )
-      );
-      
-      toast.success('Booking confirmed successfully');
+      if (response.data && response.data.booking) {
+        // Update local state to reflect the change with the returned booking data
+        setBookings(prevBookings => 
+          prevBookings.map(booking => 
+            booking._id === bookingId ? {...booking, status: 'confirmed'} : booking
+          )
+        );
+        
+        toast.success('Booking confirmed successfully');
+      } else {
+        throw new Error('Failed to confirm booking');
+      }
     } catch (err) {
       console.error('Error confirming booking:', err);
-      toast.error('Failed to confirm booking');
+      toast.error(err.response?.data?.message || 'Failed to confirm booking');
     }
   };
 
@@ -60,19 +65,23 @@ const AllBookings = () => {
   const handleCancelBooking = async (bookingId) => {
     if (window.confirm('Are you sure you want to cancel this booking?')) {
       try {
-        await axios.put(`http://localhost:8001/api/cancel-booking/${bookingId}`);
+        const response = await axios.put(`http://localhost:8001/api/admin/bookings/${bookingId}/cancel`);
         
-        // Update local state to reflect the change
-        setBookings(prevBookings => 
-          prevBookings.map(booking => 
-            booking._id === bookingId ? {...booking, status: 'cancelled'} : booking
-          )
-        );
-        
-        toast.success('Booking cancelled successfully');
+        if (response.data && response.data.booking) {
+          // Update local state to reflect the change with the returned booking data
+          setBookings(prevBookings => 
+            prevBookings.map(booking => 
+              booking._id === bookingId ? {...booking, status: 'cancelled'} : booking
+            )
+          );
+          
+          toast.success('Booking cancelled successfully');
+        } else {
+          throw new Error('Failed to cancel booking');
+        }
       } catch (err) {
         console.error('Error cancelling booking:', err);
-        toast.error('Failed to cancel booking');
+        toast.error(err.response?.data?.message || 'Failed to cancel booking');
       }
     }
   };

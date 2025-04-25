@@ -284,6 +284,7 @@ const confirmBooking = async (req, res) => {
   }
 
   try {
+    // Find the booking by ID (findByIdAndUpdate can be less safe in some cases)
     const booking = await Booking.findById(bookingId);
     
     if (!booking) {
@@ -294,13 +295,26 @@ const confirmBooking = async (req, res) => {
       return res.status(400).json({ message: `Cannot confirm booking with status: ${booking.status}` });
     }
 
+    // Update the status to confirmed
     booking.status = 'confirmed';
+    booking.updatedAt = new Date();
+    
+    // Save the updated booking
     await booking.save();
 
-    return res.json({ message: 'Booking confirmed successfully', booking });
+    // Return the updated booking
+    return res.status(200).json({ 
+      success: true,
+      message: 'Booking confirmed successfully', 
+      booking 
+    });
   } catch (error) {
     console.error('Error confirming booking:', error);
-    return res.status(500).json({ message: 'Server error', error: error.message });
+    return res.status(500).json({ 
+      success: false,
+      message: 'Server error', 
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined 
+    });
   }
 };
 
@@ -335,6 +349,6 @@ module.exports = {
   getUserBookings, 
   cancelBooking,
   updateBooking,
-  confirmBooking, // New function for admin to confirm bookings
+  confirmBooking, // Admin function to confirm bookings
   getAllBookings
 };

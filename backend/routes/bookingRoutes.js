@@ -7,9 +7,10 @@ const {
   getUserBookings, 
   cancelBooking,
   updateBooking,
+  confirmBooking,
   getAllBookings
 } = require('../controller/bookingController');
-const Booking = require('../models/Booking'); // Make sure to import the Booking model
+const Booking = require('../models/Booking');
 
 // Create a new booking
 router.post('/booking', createBooking);
@@ -32,15 +33,15 @@ router.put('/update-booking/:bookingId', updateBooking);
 // Admin route to get all bookings
 router.get('/admin/bookings', getAllBookings);
 
-// Special route to get all bookings (temporary)
-router.get('/user-bookings/all', async (req, res) => {
-  try {
-    const bookings = await Booking.find().populate('apartmentId').sort({ date: -1 });
-    return res.json({ bookings });
-  } catch (error) {
-    console.error('Error fetching all bookings:', error);
-    return res.status(500).json({ message: 'Server error', error: error.message });
-  }
+// Add this test route for debugging
+router.get('/test', (req, res) => {
+  res.json({ message: 'Booking routes are working' });
 });
+
+// Admin route to confirm a booking - IMPORTANT for fixing the confirm issue
+router.put('/admin/bookings/confirm/:bookingId', confirmBooking);
+
+// Admin route to cancel a booking
+router.put('/admin/bookings/:bookingId/cancel', cancelBooking);
 
 module.exports = router;
