@@ -7,7 +7,7 @@ const HealthForm = () => {
     name: '',
     email: '',
     phoneNumber: '',
-    serviceType: '', // No default value
+    serviceType: '',
     numberOfStaff: 1,
     additionalNotes: '',
     date: '',
@@ -20,45 +20,34 @@ const HealthForm = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+    setFormData(prevData => ({ ...prevData, [name]: value }));
   };
 
   const validateForm = () => {
     const validationErrors = {};
     const { ownerId, name, email, phoneNumber, serviceType, numberOfStaff, date, time } = formData;
 
-    const ownerIdPattern = /^Ow\d{4}$/;
     if (!ownerId) {
       validationErrors.ownerId = 'Owner ID is required';
-    } else if (!ownerIdPattern.test(ownerId)) {
-      validationErrors.ownerId = 'Owner ID must start with "Ow" and be followed by 4 digits (e.g., Ow1234)';
+    } else if (!/^Ow\d{4}$/.test(ownerId)) {
+      validationErrors.ownerId = 'Owner ID must start with "Ow" and 4 digits (e.g., Ow1234)';
     }
 
     if (!name) validationErrors.name = 'Name is required';
-
-    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!email) {
       validationErrors.email = 'Email is required';
-    } else if (!emailPattern.test(email)) {
+    } else if (!/^[\w.%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(email)) {
       validationErrors.email = 'Invalid email address';
     }
-
-    const phonePattern = /^[0-9]{10}$/;
     if (!phoneNumber) {
       validationErrors.phoneNumber = 'Phone number is required';
-    } else if (!phonePattern.test(phoneNumber)) {
+    } else if (!/^\d{10}$/.test(phoneNumber)) {
       validationErrors.phoneNumber = 'Enter a valid 10-digit phone number';
     }
-
     if (!serviceType) validationErrors.serviceType = 'Service type is required';
-
     if (numberOfStaff < 1 || numberOfStaff > 10) {
-      validationErrors.numberOfStaff = 'Choose 1 to 10 staff members';
+      validationErrors.numberOfStaff = 'Choose between 1 to 10 staff';
     }
-
     if (!date) validationErrors.date = 'Service date is required';
     if (!time) validationErrors.time = 'Service time is required';
 
@@ -68,10 +57,10 @@ const HealthForm = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const validationErrors = validateForm();
-
     if (Object.keys(validationErrors).length === 0) {
       setIsSubmitted(true);
       setErrors({});
+      // You could send the formData to your API here.
     } else {
       setErrors(validationErrors);
     }
@@ -80,10 +69,9 @@ const HealthForm = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-100 to-white p-10">
       <div className="relative max-w-lg mx-auto bg-white p-8 rounded-xl shadow-xl border border-gray-300">
-
         <button
-          onClick={() => navigate('/ownerserevices')}
-          className="absolute top-4 left-4 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition duration-300 shadow-lg transform hover:scale-110 focus:outline-none"
+          onClick={() => navigate('/ownerservices')}
+          className="absolute top-4 left-4 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition duration-300 shadow-lg transform hover:scale-110"
         >
           &#8592;
         </button>
@@ -91,86 +79,42 @@ const HealthForm = () => {
         <h1 className="text-3xl font-semibold text-red-700 mb-6 text-center">🏥 Health Service Request</h1>
 
         {isSubmitted ? (
-                    <div className="text-center text-red-600">
-                    <h2 className="text-2xl font-bold">Thank you for your request!</h2>
-                     <p className="mt-2 text-lg">We’ll contact you shortly to confirm your service.</p>
-                    <div className="mt-4 text-sm text-left">
-      <p><strong>Owner ID:</strong> {formData.ownerId}</p>
-      <p><strong>Name:</strong> {formData.name}</p>
-      <p><strong>Email:</strong> {formData.email}</p>
-      <p><strong>Phone Number:</strong> {formData.phoneNumber}</p>
-      <p><strong>Service Type:</strong> {formData.serviceType}</p>
-      <p><strong>Number of Staff:</strong> {formData.numberOfStaff}</p>
-      <p><strong>Additional Notes:</strong> {formData.additionalNotes}</p>
-      <p><strong>Service Date:</strong> {formData.date}</p>
-      <p><strong>Service Time:</strong> {formData.time}</p>
-    </div>
-
-    {/* More button that navigates to /ownerservices */}
-    <button
-      onClick={() => navigate('/ownerserevices')}
-      className="mt-6 px-6 py-3 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition duration-300 shadow-md focus:outline-none focus:ring-2 focus:ring-red-400"
-    >
-      More Services
-    </button>
-  </div>
-) : (
-  // ...rest of the form
-
+          <div className="text-center text-red-600">
+            <h2 className="text-2xl font-bold">Thank you for your request!</h2>
+            <p className="mt-2 text-lg">We’ll contact you shortly.</p>
+            <div className="mt-4 text-sm text-left">
+              {Object.entries(formData).map(([key, value]) => (
+                <p key={key}><strong>{key.replace(/([A-Z])/g, ' $1')}:</strong> {value}</p>
+              ))}
+            </div>
+            <button
+              onClick={() => navigate('/ownerservices')}
+              className="mt-6 px-6 py-3 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition duration-300"
+            >
+              More Services
+            </button>
+          </div>
+        ) : (
           <form onSubmit={handleSubmit}>
-            <div className="mb-4">
-              <label htmlFor="ownerId" className="block text-sm font-medium text-gray-700">
-                Owner ID (e.g., Ow1234)
-              </label>
-              <input
-                type="text"
-                id="ownerId"
-                name="ownerId"
-                value={formData.ownerId}
-                onChange={handleChange}
-                className="mt-1 p-3 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
-              />
-              {errors.ownerId && <p className="text-red-600 text-sm">{errors.ownerId}</p>}
-            </div>
-
-            <div className="mb-4">
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700">Full Name</label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                className="mt-1 p-3 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
-              />
-              {errors.name && <p className="text-red-600 text-sm">{errors.name}</p>}
-            </div>
-
-            <div className="mb-4">
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="mt-1 p-3 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
-              />
-              {errors.email && <p className="text-red-600 text-sm">{errors.email}</p>}
-            </div>
-
-            <div className="mb-4">
-              <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700">Phone Number</label>
-              <input
-                type="tel"
-                id="phoneNumber"
-                name="phoneNumber"
-                value={formData.phoneNumber}
-                onChange={handleChange}
-                className="mt-1 p-3 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
-              />
-              {errors.phoneNumber && <p className="text-red-600 text-sm">{errors.phoneNumber}</p>}
-            </div>
+            {[
+              { label: "Owner ID (e.g., Ow1234)", id: "ownerId", type: "text" },
+              { label: "Full Name", id: "name", type: "text" },
+              { label: "Email", id: "email", type: "email" },
+              { label: "Phone Number", id: "phoneNumber", type: "tel" },
+            ].map(({ label, id, type }) => (
+              <div key={id} className="mb-4">
+                <label htmlFor={id} className="block text-sm font-medium text-gray-700">{label}</label>
+                <input
+                  type={type}
+                  id={id}
+                  name={id}
+                  value={formData[id]}
+                  onChange={handleChange}
+                  className="mt-1 p-3 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
+                />
+                {errors[id] && <p className="text-red-600 text-sm">{errors[id]}</p>}
+              </div>
+            ))}
 
             <div className="mb-4">
               <label htmlFor="serviceType" className="block text-sm font-medium text-gray-700">Service Type</label>
@@ -198,13 +142,10 @@ const HealthForm = () => {
                 onChange={handleChange}
                 className="mt-1 p-3 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
               >
-                {[...Array(10).keys()].map((num) => (
-                  <option key={num} value={num + 1}>
-                    {num + 1} {num + 1 === 1 ? 'Staff' : 'Staffs'}
-                  </option>
+                {[...Array(10)].map((_, i) => (
+                  <option key={i} value={i + 1}>{i + 1} {i === 0 ? 'Staff' : 'Staffs'}</option>
                 ))}
               </select>
-              {errors.numberOfStaff && <p className="text-red-600 text-sm">{errors.numberOfStaff}</p>}
             </div>
 
             <div className="mb-4">
@@ -247,7 +188,7 @@ const HealthForm = () => {
 
             <button
               type="submit"
-              className="w-full py-3 bg-red-500 text-white text-lg font-medium rounded-lg hover:bg-red-600 transition duration-300 focus:outline-none focus:ring-4 focus:ring-red-300"
+              className="w-full py-3 bg-red-500 text-white text-lg font-medium rounded-lg hover:bg-red-600 transition duration-300 focus:outline-none"
             >
               Submit Health Service Request
             </button>

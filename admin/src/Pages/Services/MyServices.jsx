@@ -13,6 +13,7 @@ const initialData = [
     additionalNotes: 'clean',
     date: '2025-03-30',
     time: '10:00',
+    state: 'Pending', // Initial state filled
   },
   {
     id: 2,
@@ -25,6 +26,7 @@ const initialData = [
     additionalNotes: 'Include parking area',
     date: '2025-04-01',
     time: '14:30',
+    state: 'Approved', // Initial state filled
   },
   {
     id: 3,
@@ -37,6 +39,7 @@ const initialData = [
     additionalNotes: 'Use eco-friendly products',
     date: '2025-04-02',
     time: '09:00',
+    state: 'Rejected', // Initial state filled
   },
 ];
 
@@ -93,13 +96,6 @@ const VerifyServices = () => {
     setSearchQuery(e.target.value);
   };
 
-  const handleVerifyAll = () => {
-    const confirmed = window.confirm("✅ All services have been verified successfully!\n\nPress OK to continue to Owner Services.");
-    if (confirmed) {
-      navigate('/ownerserevices');
-    }
-  };
-
   const filteredServices = services.filter(service =>
     service.ownerId.toLowerCase().includes(searchQuery.toLowerCase()) ||
     service.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -109,7 +105,7 @@ const VerifyServices = () => {
 
   return (
     <div className="relative p-8 bg-gray-50 min-h-screen">
-      <h1 className="text-3xl font-semibold text-center text-blue-700 mb-6">Verify Service Requests</h1>
+      <h1 className="text-3xl font-semibold text-center text-blue-700 mb-6">Requested Services</h1>
 
       {/* Search Bar */}
       <div className="mb-6">
@@ -129,6 +125,23 @@ const VerifyServices = () => {
           <div className="space-y-4">
             {Object.keys(editForm).map((key) => {
               if (key === 'id' || key === 'additionalNotes') return null;
+              if (key === 'state') {
+                return (
+                  <div key={key} className="flex flex-col">
+                    <label htmlFor={key} className="font-medium text-gray-700 capitalize">{key}</label>
+                    <select
+                      name={key}
+                      value={editForm[key]}
+                      onChange={handleEditChange}
+                      className="p-2 border rounded-lg"
+                    >
+                      <option value="Pending">Pending</option>
+                      <option value="Approved">Approved</option>
+                      <option value="Rejected">Rejected</option>
+                    </select>
+                  </div>
+                );
+              }
               return (
                 <div key={key} className="flex flex-col">
                   <label htmlFor={key} className="font-medium text-gray-700 capitalize">{key}</label>
@@ -188,6 +201,7 @@ const VerifyServices = () => {
                   <th className="py-3 px-4 border-b">Note</th>
                   <th className="py-3 px-4 border-b">Date</th>
                   <th className="py-3 px-4 border-b">Time</th>
+                  <th className="py-3 px-4 border-b">State</th>
                   <th className="py-3 px-4 border-b">Actions</th>
                 </tr>
               </thead>
@@ -203,6 +217,7 @@ const VerifyServices = () => {
                     <td className="py-2 px-4 text-center">{service.additionalNotes}</td>
                     <td className="py-2 px-4 text-center">{service.date}</td>
                     <td className="py-2 px-4 text-center">{service.time}</td>
+                    <td className="py-2 px-4 text-center">{service.state}</td>
                     <td className="py-2 px-4">
                       <div className="flex justify-center space-x-3">
                         <button
@@ -223,16 +238,6 @@ const VerifyServices = () => {
                 ))}
               </tbody>
             </table>
-          </div>
-
-          {/* Verified Button */}
-          <div className="mt-6 flex justify-center">
-            <button
-              onClick={handleVerifyAll}
-              className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg text-lg font-medium shadow"
-            >
-              ✅ Mark All as Verified
-            </button>
           </div>
         </>
       ) : (

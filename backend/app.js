@@ -7,6 +7,7 @@ const apartmentRoutes = require('./routes/apartmentRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
 const authRoutes = require('./routes/authRoutes');
 const accountRoutes = require('./routes/AccountRoutes');
+const CleaningRoutes = require('./routes/CleaningRoutes')
 const { errorHandler } = require('./middleware/auth');
 const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
@@ -45,6 +46,8 @@ app.use('/api/apartments', apartmentRoutes);
 app.use('/api', bookingRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/authaccount', accountRoutes);
+app.use('/api/cleaningservice', CleaningRoutes);
+
 
 // Error handling middleware
 app.use(errorHandler);
