@@ -2,6 +2,18 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { 
+  Calendar, 
+  Clock, 
+  User, 
+  Phone, 
+  CheckCircle, 
+  XCircle, 
+  ArrowLeft, 
+  Save, 
+  CalendarClock,
+  CalendarDays
+} from 'lucide-react';
 
 // Configure axios with the base URL - add this line
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001'; // Adjust port if needed
@@ -222,82 +234,139 @@ const EditBooking = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
-        <div className="text-xl">Loading booking data...</div>
+      <div className="flex justify-center items-center h-screen bg-gray-50">
+        <div className="flex flex-col items-center">
+          <div className="w-16 h-16 border-4 border-t-blue-600 border-b-blue-600 border-l-transparent border-r-transparent rounded-full animate-spin mb-4"></div>
+          <p className="text-gray-700 font-medium">Loading booking details...</p>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
-        <div className="text-xl text-red-400">{error}</div>
+      <div className="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
+        <div className="bg-white border-l-4 border-red-500 p-8 rounded-lg shadow-xl max-w-md w-full">
+          <h2 className="text-xl font-bold text-red-600 mb-4">Error Loading Booking</h2>
+          <p className="text-gray-600 mb-6">{error}</p>
+          <button 
+            onClick={() => navigate('/my-appointments')} 
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg transition font-medium flex items-center justify-center"
+          >
+            <ArrowLeft size={18} className="mr-2" />
+            Back to My Appointments
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
-      <div className="max-w-6xl mx-auto p-4">
-        <h1 className="text-3xl font-bold mb-6 text-white mt-32">Edit Booking</h1>
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+      <div className="max-w-4xl mx-auto p-4 pt-32 pb-16">
+        {/* Back button */}
+        <button 
+          onClick={handleCancel}
+          className="flex items-center mb-6 text-blue-600 hover:text-blue-800 transition-colors font-medium"
+        >
+          <ArrowLeft size={18} className="mr-2" />
+          Back to My Appointments
+        </button>
 
-        <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-          <h2 className="text-2xl font-semibold text-white mb-6">Update Your Booking</h2>
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-800">Edit Booking</h1>
+          {booking && booking.apartmentId && typeof booking.apartmentId === 'object' && (
+            <div className="bg-blue-100 text-blue-700 px-4 py-2 rounded-full font-medium text-sm">
+              {booking.apartmentId.title || 'Property'}
+            </div>
+          )}
+        </div>
+
+        <div className="bg-white p-8 rounded-2xl shadow-md border border-gray-200">
+          <div className="flex items-center mb-8 pb-4 border-b border-gray-100">
+            <CalendarClock size={24} className="text-blue-600 mr-3" />
+            <h2 className="text-2xl font-bold text-gray-800">Update Your Appointment</h2>
+          </div>
           
           {/* Personal Information */}
-          <div className="mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="name" className="block text-gray-300 mb-2">Full Name</label>
-              <input 
-                type="text" 
-                id="name" 
-                value={name} 
-                onChange={(e) => setName(e.target.value)} 
-                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter your full name"
-              />
-            </div>
-            <div>
-              <label htmlFor="phone" className="block text-gray-300 mb-2">Phone Number</label>
-              <input 
-                type="tel" 
-                id="phone" 
-                value={phoneNumber} 
-                onChange={(e) => setPhoneNumber(e.target.value)} 
-                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter your phone number"
-              />
+          <div className="mb-8 space-y-6">
+            <h3 className="text-lg font-bold text-gray-800 flex items-center mb-4">
+              <User size={18} className="text-blue-600 mr-2" />
+              Personal Information
+            </h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label htmlFor="name" className="block text-gray-700 text-sm font-medium mb-1">Full Name</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <User size={16} className="text-gray-400" />
+                  </div>
+                  <input 
+                    type="text" 
+                    id="name" 
+                    value={name} 
+                    onChange={(e) => setName(e.target.value)} 
+                    className="w-full bg-gray-50 border border-gray-300 rounded-lg pl-10 pr-4 py-2.5 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Enter your full name"
+                  />
+                </div>
+              </div>
+              <div>
+                <label htmlFor="phone" className="block text-gray-700 text-sm font-medium mb-1">Phone Number</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Phone size={16} className="text-gray-400" />
+                  </div>
+                  <input 
+                    type="tel" 
+                    id="phone" 
+                    value={phoneNumber} 
+                    onChange={(e) => setPhoneNumber(e.target.value)} 
+                    className="w-full bg-gray-50 border border-gray-300 rounded-lg pl-10 pr-4 py-2.5 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Enter your phone number"
+                  />
+                </div>
+              </div>
             </div>
           </div>
           
-          {/* Day Selection */}
-          <div className="mb-4">
-            <h3 className="text-lg font-medium text-gray-300 mb-3">Select Day</h3>
-            <div className="flex space-x-4 overflow-x-auto pb-4">
+          {/* Date Selection */}
+          <div className="mb-8">
+            <h3 className="text-lg font-bold text-gray-800 flex items-center mb-4">
+              <CalendarDays size={18} className="text-blue-600 mr-2" />
+              Select Day
+            </h3>
+            <div className="flex space-x-2 overflow-x-auto pb-4">
               {days.map((day) => (
                 <div 
                   key={day.fullDate}
                   onClick={() => handleDayClick(day)}
-                  className={`flex flex-col items-center justify-center ${
-                    selectedDay === day.fullDate ? 'bg-blue-500' : 'bg-white bg-opacity-10 hover:bg-opacity-20'
-                  } cursor-pointer rounded-full transition-all duration-200 min-w-24 h-24 p-4`}
+                  className={`flex flex-col items-center justify-center cursor-pointer rounded-lg transition-all duration-200 min-w-16 h-20 p-2 ${
+                    selectedDay === day.fullDate 
+                      ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md' 
+                      : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                  }`}
                 >
-                  <span className={`font-semibold ${selectedDay === day.fullDate ? 'text-white' : 'text-gray-200'}`}>
-                    {day.day}
-                  </span>
-                  <span className={`text-xl font-bold ${selectedDay === day.fullDate ? 'text-white' : 'text-gray-200'}`}>
-                    {day.date}
-                  </span>
-                  {day.isToday && <span className="text-xs text-green-400 mt-1">Today</span>}
+                  <span className="text-xs font-medium">{day.day}</span>
+                  <span className="text-lg font-bold">{day.date}</span>
+                  {day.isToday && (
+                    <span className={`text-xs ${selectedDay === day.fullDate ? 'text-white' : 'text-emerald-600'} mt-1`}>
+                      Today
+                    </span>
+                  )}
                 </div>
               ))}
             </div>
           </div>
-
+          
           {/* Time Slots */}
-          <div className="mb-6">
-            <h3 className="text-lg font-medium text-gray-300 mb-3">Select Time</h3>
-            <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-7 gap-4">
+          <div className="mb-8">
+            <h3 className="text-lg font-bold text-gray-800 flex items-center mb-4">
+              <Clock size={18} className="text-blue-600 mr-2" />
+              Select Time
+            </h3>
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7 gap-3">
               {timeSlots.map((slot) => {
                 const isAvailable = availableSlots.includes(slot);
                 return (
@@ -305,34 +374,49 @@ const EditBooking = () => {
                     key={slot}
                     onClick={() => isAvailable && handleSlotClick(slot)}
                     disabled={!isAvailable}
-                    className={`py-3 px-4 rounded-full transition-all duration-200 ${
+                    className={`py-2 px-3 rounded-lg transition-all duration-200 flex items-center justify-center text-sm ${
                       selectedSlot === slot 
-                        ? 'bg-blue-500 text-white' 
+                        ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md' 
                         : isAvailable 
-                          ? 'bg-white bg-opacity-10 text-gray-300 hover:bg-opacity-20' 
-                          : 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                          ? 'bg-gray-100 hover:bg-gray-200 text-gray-700' 
+                          : 'bg-gray-100 text-gray-400 cursor-not-allowed'
                     }`}
                   >
+                    {isAvailable ? (
+                      selectedSlot === slot ? (
+                        <CheckCircle size={14} className="mr-1.5" />
+                      ) : (
+                        <Clock size={14} className="mr-1.5 text-gray-500" />
+                      )
+                    ) : (
+                      <XCircle size={14} className="mr-1.5" />
+                    )}
                     {slot}
                   </button>
                 );
               })}
             </div>
+            <p className="text-gray-500 text-sm mt-3 italic">
+              <info className="w-4 h-4 inline-block mr-1 text-blue-500" /> 
+              Only available time slots are selectable. Your current slot is included even if otherwise booked.
+            </p>
           </div>
           
           {/* Action Buttons */}
-          <div className="mt-8 flex space-x-4">
-            <button 
-              onClick={handleUpdateBooking}
-              className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-8 rounded-full transition-all duration-200"
-            >
-              Update Booking
-            </button>
+          <div className="flex flex-col sm:flex-row gap-4 justify-end mt-8 pt-4 border-t border-gray-100">
             <button 
               onClick={handleCancel}
-              className="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-8 rounded-full transition-all duration-200"
+              className="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors flex items-center justify-center"
             >
+              <XCircle size={18} className="mr-2" />
               Cancel
+            </button>
+            <button 
+              onClick={handleUpdateBooking}
+              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg font-medium transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center"
+            >
+              <Save size={18} className="mr-2" />
+              Update Booking
             </button>
           </div>
         </div>
