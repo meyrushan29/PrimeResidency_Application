@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import axios from 'axios'; // Import axios for HTTP requests
 
 const VotersRegister = () => {
   const [formData, setFormData] = useState({
@@ -12,8 +13,8 @@ const VotersRegister = () => {
   const [message, setMessage] = useState({ type: '', text: '' });
   const [errors, setErrors] = useState({});
   
-  const videoRef = useRef();
-  const canvasRef = useRef();
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
 
   // Validation logic
   const validateForm = () => {
@@ -60,33 +61,48 @@ const VotersRegister = () => {
       return;
     }
 
-    const submitData = new FormData();
-    Object.entries(formData).forEach(([key, value]) => {
-      submitData.append(key, value);
-    });
-    
-    if (photo) {
-      submitData.append('photo', photo);
-    }
-
     try {
-      // Simulate API call for demo purposes
-      // In real app: await axios.post('http://localhost:8001/api/voters/register', submitData, ...)
+      // Create FormData object for submission
+      const submitData = new FormData();
+      Object.entries(formData).forEach(([key, value]) => {
+        submitData.append(key, value);
+      });
       
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      if (photo) {
+        submitData.append('photo', photo);
+      }
+
+      // Implement the actual POST request using axios
+      // Replace this with the actual API endpoint
+      const apiUrl = 'http://localhost:8001/api/voters/register';
+      
+      // Using axios for better handling of multipart/form-data
+      const response = await axios.post(apiUrl, submitData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        // Add timeout to prevent indefinite waiting
+        timeout: 10000,
+      });
+      
+      // Axios automatically throws for non-2xx responses
+      const result = response.data;
       
       setMessage({
         type: 'success',
-        text: 'Registration successful! Your voter registration has been submitted.'
+        text: result.message || 'Registration successful! Your voter registration has been submitted.'
       });
+      
+      // Clear form after successful submission
       setFormData({ name: '', email: '', houseId: '' });
       setPhoto(null);
     } catch (error) {
       console.error('Error registering voter:', error);
+      
+      // Provide more specific error message if possible
       setMessage({
         type: 'error',
-        text: 'Registration failed. Please check your internet connection and try again.'
+        text: error.message || 'Registration failed. Please check your internet connection and try again.'
       });
     } finally {
       setIsSubmitting(false);
@@ -94,13 +110,27 @@ const VotersRegister = () => {
   };
 
   const handleCapture = () => {
+    if (!videoRef.current || !canvasRef.current) return;
+    
     const canvas = canvasRef.current;
     const context = canvas.getContext('2d');
+    
+    // Ensure video dimensions are available
+    if (videoRef.current.videoWidth === 0) {
+      console.error("Video stream not ready yet");
+      return;
+    }
+    
     canvas.width = videoRef.current.videoWidth;
     canvas.height = videoRef.current.videoHeight;
     context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
 
     canvas.toBlob((blob) => {
+      if (!blob) {
+        console.error("Failed to capture image");
+        return;
+      }
+      
       const file = new File([blob], 'captured_photo.png', { type: 'image/png' });
       setPhoto(file);
       setIsCapturing(false);
@@ -110,7 +140,7 @@ const VotersRegister = () => {
       if (errors.photo) {
         setErrors(prev => ({ ...prev, photo: '' }));
       }
-    });
+    }, 'image/png');
   };
 
   const toggleCamera = () => {
@@ -124,8 +154,18 @@ const VotersRegister = () => {
 
   const startWebcam = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      videoRef.current.srcObject = stream;
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: 'user' } 
+      });
+      
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.onloadedmetadata = () => {
+          videoRef.current.play().catch(err => {
+            console.error("Error playing video:", err);
+          });
+        };
+      }
     } catch (err) {
       console.error("Error accessing webcam:", err);
       setMessage({
@@ -137,9 +177,12 @@ const VotersRegister = () => {
   };
 
   const stopWebcam = () => {
-    const stream = videoRef.current?.srcObject;
+    if (!videoRef.current || !videoRef.current.srcObject) return;
+    
+    const stream = videoRef.current.srcObject;
     if (stream) {
-      stream.getTracks().forEach(track => track.stop());
+      const tracks = stream.getTracks();
+      tracks.forEach(track => track.stop());
       videoRef.current.srcObject = null;
     }
   };
@@ -152,14 +195,16 @@ const VotersRegister = () => {
 
   // Cleanup on unmount
   useEffect(() => {
-    return () => { stopWebcam(); };
+    return () => { 
+      stopWebcam(); 
+    };
   }, []);
 
   return (
-    <div className="bg-gray-100 min-h-screen py-0 px-0 p-6">
+    <div className="bg-gray-100 min-h-screen py-6">
       <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-0 rounded-t-xl">
+        <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-6 rounded-t-xl">
           <h2 className="text-3xl font-bold text-center">Voter Registration</h2>
           <p className="text-center text-blue-100 mt-2">Complete this form to register as a voter for the upcoming election</p>
         </div>
