@@ -19,6 +19,14 @@ const bookingSchema = new mongoose.Schema({
     ref: 'User',
     required: true,
   },
+  name: {
+    type: String,
+    required: true,
+  },
+  phoneNumber: {
+    type: String,
+    required: true,
+  },
   status: {
     type: String,
     enum: ['confirmed', 'pending', 'cancelled'],
@@ -28,6 +36,10 @@ const bookingSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  updatedAt: {
+    type: Date,
+    default: Date.now
+  }
 });
 
 const Booking = mongoose.model('Booking', bookingSchema);
