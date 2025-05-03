@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { Calendar, Clock, MapPin, Edit, X, ChevronLeft, CheckCircle, AlertTriangle, Clock3, Layers } from 'lucide-react';
 
 const MyAppointments = () => {
   const [bookings, setBookings] = useState([]);
@@ -77,22 +78,23 @@ const MyAppointments = () => {
   const getStatusBadgeClass = (status) => {
     switch(status) {
       case 'confirmed':
-        return 'bg-green-600';
+        return 'bg-emerald-100 text-emerald-700 border border-emerald-200';
       case 'pending':
-        return 'bg-yellow-600';
+        return 'bg-amber-100 text-amber-700 border border-amber-200';
       case 'cancelled':
-        return 'bg-red-600';
+        return 'bg-red-100 text-red-700 border border-red-200';
       default:
-        return 'bg-gray-600';
+        return 'bg-gray-100 text-gray-700 border border-gray-200';
     }
   };
 
   // Loading state with improved spinner
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen bg-gray-900">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500">
-          <div className="h-12 w-12 rounded-full border-t-4 border-b-4 border-blue-300 absolute"></div>
+      <div className="flex justify-center items-center h-screen bg-gray-50">
+        <div className="flex flex-col items-center">
+          <div className="w-16 h-16 border-4 border-t-blue-600 border-b-blue-600 border-l-transparent border-r-transparent rounded-full animate-spin mb-4"></div>
+          <p className="text-gray-700 font-medium">Loading your appointments...</p>
         </div>
       </div>
     );
@@ -101,13 +103,13 @@ const MyAppointments = () => {
   // Error state with improved error card
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-900 text-white p-6 flex items-center justify-center">
-        <div className="bg-gray-800 border-l-4 border-red-500 text-white p-8 rounded-lg shadow-xl max-w-md w-full">
-          <h2 className="text-xl font-bold text-red-400 mb-4">Unable to Load Appointments</h2>
-          <p className="text-gray-300">{error}</p>
+      <div className="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
+        <div className="bg-white border-l-4 border-red-500 p-8 rounded-lg shadow-xl max-w-md w-full">
+          <h2 className="text-xl font-bold text-red-600 mb-4">Unable to Load Appointments</h2>
+          <p className="text-gray-600">{error}</p>
           <button 
             onClick={() => window.location.reload()}
-            className="mt-6 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition w-full"
+            className="mt-6 bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg transition w-full font-medium"
           >
             Try Again
           </button>
@@ -119,16 +121,14 @@ const MyAppointments = () => {
   // No bookings with improved empty state
   if (bookings.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-8">
-        <div className="bg-gray-800 p-10 rounded-xl shadow-2xl text-center max-w-md w-full">
+      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-8">
+        <div className="bg-white p-10 rounded-xl shadow-lg text-center max-w-md w-full border border-gray-200">
           <div className="mb-6">
-            <svg className="w-20 h-20 mx-auto text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-            </svg>
+            <Calendar className="w-20 h-20 mx-auto text-gray-300 stroke-1" />
           </div>
-          <h1 className="text-2xl font-bold mb-4">No Appointments Yet</h1>
-          <p className="text-gray-400 mb-6">You don't have any scheduled appointments at the moment.</p>
-          <Link to="/" className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition inline-block">
+          <h1 className="text-2xl font-bold mb-4 text-gray-800">No Appointments Yet</h1>
+          <p className="text-gray-600 mb-6">You don't have any scheduled appointments at the moment.</p>
+          <Link to="/" className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-3 rounded-lg transition inline-block font-medium shadow-md">
             Browse Properties
           </Link>
         </div>
@@ -154,73 +154,71 @@ const MyAppointments = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
-      <div className="max-w-6xl mx-auto px-4 py-12">
-        <header className="mb-2 mt-32 text-center">
-          <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">My Appointments</h1>
-          <p className="text-gray-400">Manage all your property viewing appointments in one place</p>
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+      <div className="max-w-6xl mx-auto px-4 py-12 pt-32">
+        <header className="mb-12 text-center">
+          <h1 className="text-3xl md:text-4xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-700">My Appointments</h1>
+          <p className="text-gray-600">Manage all your property viewing appointments in one place</p>
         </header>
 
         {/* Pending Appointments */}
         {pendingBookings.length > 0 && (
           <div className="mb-12">
             <div className="flex items-center mb-6">
-              <div className="h-8 w-2 bg-yellow-500 rounded-r mr-3"></div>
-              <h2 className="text-2xl font-semibold text-yellow-300">Pending Appointments</h2>
+              <div className="h-8 w-2 bg-amber-500 rounded-r mr-3"></div>
+              <h2 className="text-2xl font-bold text-gray-800">Pending Appointments</h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {pendingBookings.map(booking => (
-                <div key={booking._id} className="bg-gray-800 rounded-xl shadow-lg overflow-hidden transform transition hover:translate-y-1 hover:shadow-xl">
-                  <div className="h-2 bg-yellow-500 w-full"></div>
+                <div key={booking._id} className="bg-white rounded-xl shadow-md overflow-hidden transform transition-all duration-300 hover:-translate-y-1 hover:shadow-lg border border-gray-100">
+                  <div className="h-2 bg-amber-500 w-full"></div>
                   <div className="p-6">
                     <div className="flex justify-between items-start mb-4">
                       <div>
-                        <h3 className="text-xl font-bold">{booking.apartmentId?.title || 'Apartment'}</h3>
-                        <div className="flex items-center mt-2 text-gray-400">
-                          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                          </svg>
+                        <h3 className="text-xl font-bold text-gray-800">{booking.apartmentId?.title || 'Apartment'}</h3>
+                        <div className="flex items-center mt-2 text-gray-500">
+                          <Calendar className="w-4 h-4 mr-2 stroke-2" />
                           {new Date(booking.date).toLocaleDateString('en-US', {weekday: 'short', month: 'short', day: 'numeric'})}
                         </div>
-                        <div className="flex items-center mt-1 text-gray-400">
-                          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                          </svg>
+                        <div className="flex items-center mt-1 text-gray-500">
+                          <Clock className="w-4 h-4 mr-2 stroke-2" />
                           {booking.timeSlot}
                         </div>
                       </div>
-                      <span className="bg-yellow-600 text-yellow-100 text-sm px-3 py-1 rounded-full font-medium shadow">Pending</span>
+                      <span className="bg-amber-100 text-amber-700 text-sm px-3 py-1.5 rounded-full font-medium shadow-sm border border-amber-200">
+                        <span className="inline-block mr-1 w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                        Pending
+                      </span>
                     </div>
                     
-                    <div className="border-t border-gray-700 pt-4 mt-4 space-y-2">
+                    <div className="border-t border-gray-100 pt-4 mt-4 space-y-2">
                       <div className="flex items-center">
-                        <span className="text-gray-400 w-20">Name:</span> 
-                        <span className="font-medium">{booking.name}</span>
+                        <span className="text-gray-500 w-20">Name:</span> 
+                        <span className="font-medium text-gray-800">{booking.name}</span>
                       </div>
                       <div className="flex items-center">
-                        <span className="text-gray-400 w-20">Phone:</span> 
-                        <span className="font-medium">{booking.phoneNumber}</span>
+                        <span className="text-gray-500 w-20">Phone:</span> 
+                        <span className="font-medium text-gray-800">{booking.phoneNumber}</span>
                       </div>
-                      <p className="mt-3 text-yellow-300 text-sm italic">This booking is awaiting administrator approval.</p>
+                      <p className="mt-3 text-amber-600 text-sm bg-amber-50 p-2 rounded-lg border border-amber-100">
+                        <AlertTriangle className="w-4 h-4 inline-block mr-2 stroke-2" />
+                        This booking is awaiting administrator approval.
+                      </p>
                     </div>
                     
                     <div className="flex space-x-3 mt-6">
                       <button 
                         onClick={() => handleEditBooking(booking._id)}
-                        className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition flex items-center justify-center"
+                        className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg transition flex items-center justify-center font-medium shadow-sm"
                       >
-                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                        </svg>
+                        <Edit className="w-4 h-4 mr-2 stroke-2" />
                         Edit
                       </button>
                       <button 
                         onClick={() => handleCancelBooking(booking._id)}
-                        className="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition flex items-center justify-center"
+                        className="flex-1 bg-white hover:bg-red-50 text-red-600 border border-red-200 px-4 py-3 rounded-lg transition flex items-center justify-center font-medium"
                       >
-                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
+                        <X className="w-4 h-4 mr-2 stroke-2" />
                         Cancel
                       </button>
                     </div>
@@ -234,62 +232,64 @@ const MyAppointments = () => {
         {/* Upcoming Confirmed Appointments */}
         <div className="mb-12">
           <div className="flex items-center mb-6">
-            <div className="h-8 w-2 bg-green-500 rounded-r mr-3"></div>
-            <h2 className="text-2xl font-semibold text-green-300">Confirmed Appointments</h2>
+            <div className="h-8 w-2 bg-emerald-500 rounded-r mr-3"></div>
+            <h2 className="text-2xl font-bold text-gray-800">Confirmed Appointments</h2>
           </div>
           {upcomingBookings.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {upcomingBookings.map(booking => (
-                <div key={booking._id} className="bg-gray-800 rounded-xl shadow-lg overflow-hidden transform transition hover:translate-y-1 hover:shadow-xl">
-                  <div className="h-2 bg-green-500 w-full"></div>
+                <div key={booking._id} className="bg-white rounded-xl shadow-md overflow-hidden transform transition-all duration-300 hover:-translate-y-1 hover:shadow-lg border border-gray-100">
+                  <div className="h-2 bg-emerald-500 w-full"></div>
                   <div className="p-6">
                     <div className="flex justify-between items-start mb-4">
                       <div>
-                        <h3 className="text-xl font-bold">{booking.apartmentId?.title || 'Apartment'}</h3>
-                        <div className="flex items-center mt-2 text-gray-400">
-                          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                          </svg>
+                        <h3 className="text-xl font-bold text-gray-800">{booking.apartmentId?.title || 'Apartment'}</h3>
+                        <div className="flex items-center mt-2 text-gray-500">
+                          <Calendar className="w-4 h-4 mr-2 stroke-2" />
                           {new Date(booking.date).toLocaleDateString('en-US', {weekday: 'short', month: 'short', day: 'numeric'})}
                         </div>
-                        <div className="flex items-center mt-1 text-gray-400">
-                          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                          </svg>
+                        <div className="flex items-center mt-1 text-gray-500">
+                          <Clock className="w-4 h-4 mr-2 stroke-2" />
                           {booking.timeSlot}
                         </div>
                       </div>
-                      <span className="bg-green-600 text-green-100 text-sm px-3 py-1 rounded-full font-medium shadow">Confirmed</span>
+                      <span className="bg-emerald-100 text-emerald-700 text-sm px-3 py-1.5 rounded-full font-medium shadow-sm border border-emerald-200">
+                        <CheckCircle className="w-3 h-3 inline-block mr-1 stroke-2" />
+                        Confirmed
+                      </span>
                     </div>
                     
-                    <div className="border-t border-gray-700 pt-4 mt-4 space-y-2">
+                    <div className="border-t border-gray-100 pt-4 mt-4 space-y-2">
                       <div className="flex items-center">
-                        <span className="text-gray-400 w-20">Name:</span> 
-                        <span className="font-medium">{booking.name}</span>
+                        <span className="text-gray-500 w-20">Name:</span> 
+                        <span className="font-medium text-gray-800">{booking.name}</span>
                       </div>
                       <div className="flex items-center">
-                        <span className="text-gray-400 w-20">Phone:</span> 
-                        <span className="font-medium">{booking.phoneNumber}</span>
+                        <span className="text-gray-500 w-20">Phone:</span> 
+                        <span className="font-medium text-gray-800">{booking.phoneNumber}</span>
+                      </div>
+                      <div className="flex items-center mt-2">
+                        <span className="text-gray-500 w-20">Location:</span> 
+                        <span className="font-medium text-gray-800 flex items-center">
+                          <MapPin className="w-4 h-4 mr-1 text-emerald-500 stroke-2" />
+                          {booking.apartmentId?.location || 'Contact for details'}
+                        </span>
                       </div>
                     </div>
                     
                     <div className="flex space-x-3 mt-6">
                       <button 
                         onClick={() => handleEditBooking(booking._id)}
-                        className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition flex items-center justify-center"
+                        className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg transition flex items-center justify-center font-medium shadow-sm"
                       >
-                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                        </svg>
+                        <Edit className="w-4 h-4 mr-2 stroke-2" />
                         Edit
                       </button>
                       <button 
                         onClick={() => handleCancelBooking(booking._id)}
-                        className="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition flex items-center justify-center"
+                        className="flex-1 bg-white hover:bg-red-50 text-red-600 border border-red-200 px-4 py-3 rounded-lg transition flex items-center justify-center font-medium"
                       >
-                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
+                        <X className="w-4 h-4 mr-2 stroke-2" />
                         Cancel
                       </button>
                     </div>
@@ -298,8 +298,9 @@ const MyAppointments = () => {
               ))}
             </div>
           ) : (
-            <div className="bg-gray-800 rounded-xl p-8 text-center">
-              <p className="text-gray-400">No confirmed appointments at the moment</p>
+            <div className="bg-white rounded-xl p-8 text-center shadow-md border border-gray-100">
+              <Clock3 className="w-12 h-12 mx-auto text-gray-300 mb-4" />
+              <p className="text-gray-500">No confirmed appointments at the moment</p>
             </div>
           )}
         </div>
@@ -308,43 +309,39 @@ const MyAppointments = () => {
         {pastBookings.length > 0 && (
           <div className="mb-12">
             <div className="flex items-center mb-6">
-              <div className="h-8 w-2 bg-gray-500 rounded-r mr-3"></div>
-              <h2 className="text-2xl font-semibold text-gray-400">Past Appointments</h2>
+              <div className="h-8 w-2 bg-gray-400 rounded-r mr-3"></div>
+              <h2 className="text-2xl font-bold text-gray-800">Past Appointments</h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {pastBookings.map(booking => (
-                <div key={booking._id} className="bg-gray-800 bg-opacity-60 rounded-xl shadow-lg overflow-hidden">
-                  <div className="h-2 bg-gray-600 w-full"></div>
+                <div key={booking._id} className="bg-white bg-opacity-60 rounded-xl shadow-sm overflow-hidden border border-gray-200">
+                  <div className="h-2 bg-gray-300 w-full"></div>
                   <div className="p-6">
                     <div className="flex justify-between items-start mb-4">
                       <div>
-                        <h3 className="text-xl font-bold text-gray-300">{booking.apartmentId?.title || 'Apartment'}</h3>
+                        <h3 className="text-xl font-bold text-gray-600">{booking.apartmentId?.title || 'Apartment'}</h3>
                         <div className="flex items-center mt-2 text-gray-500">
-                          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                          </svg>
+                          <Calendar className="w-4 h-4 mr-2 stroke-2" />
                           {new Date(booking.date).toLocaleDateString('en-US', {weekday: 'short', month: 'short', day: 'numeric'})}
                         </div>
                         <div className="flex items-center mt-1 text-gray-500">
-                          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                          </svg>
+                          <Clock className="w-4 h-4 mr-2 stroke-2" />
                           {booking.timeSlot}
                         </div>
                       </div>
-                      <span className={`${getStatusBadgeClass(booking.status)} text-sm px-3 py-1 rounded-full opacity-75 font-medium`}>
-                        {booking.status === 'pending' ? 'Pending' : 'Past'}
+                      <span className={`${getStatusBadgeClass(booking.status)} text-sm px-3 py-1 rounded-full font-medium`}>
+                        {booking.status === 'pending' ? 'Expired' : 'Past'}
                       </span>
                     </div>
                     
-                    <div className="border-t border-gray-700 pt-4 mt-4 space-y-2">
+                    <div className="border-t border-gray-100 pt-4 mt-4 space-y-2">
                       <div className="flex items-center">
-                        <span className="text-gray-500 w-20">Name:</span> 
-                        <span className="font-medium text-gray-300">{booking.name}</span>
+                        <span className="text-gray-400 w-20">Name:</span> 
+                        <span className="font-medium text-gray-600">{booking.name}</span>
                       </div>
                       <div className="flex items-center">
-                        <span className="text-gray-500 w-20">Phone:</span> 
-                        <span className="font-medium text-gray-300">{booking.phoneNumber}</span>
+                        <span className="text-gray-400 w-20">Phone:</span> 
+                        <span className="font-medium text-gray-600">{booking.phoneNumber}</span>
                       </div>
                     </div>
                   </div>
@@ -359,40 +356,39 @@ const MyAppointments = () => {
           <div className="mb-8">
             <div className="flex items-center mb-6">
               <div className="h-8 w-2 bg-red-500 rounded-r mr-3"></div>
-              <h2 className="text-2xl font-semibold text-red-300">Cancelled Appointments</h2>
+              <h2 className="text-2xl font-bold text-gray-800">Cancelled Appointments</h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {cancelledBookings.map(booking => (
-                <div key={booking._id} className="bg-gray-800 bg-opacity-50 rounded-xl shadow-lg overflow-hidden">
-                  <div className="h-2 bg-red-600 w-full"></div>
+                <div key={booking._id} className="bg-white bg-opacity-60 rounded-xl shadow-sm overflow-hidden border border-gray-200">
+                  <div className="h-2 bg-red-300 w-full"></div>
                   <div className="p-6">
                     <div className="flex justify-between items-start mb-4">
                       <div>
-                        <h3 className="text-xl font-bold text-gray-400">{booking.apartmentId?.title || 'Apartment'}</h3>
+                        <h3 className="text-xl font-bold text-gray-600">{booking.apartmentId?.title || 'Apartment'}</h3>
                         <div className="flex items-center mt-2 text-gray-500">
-                          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                          </svg>
+                          <Calendar className="w-4 h-4 mr-2 stroke-2" />
                           {new Date(booking.date).toLocaleDateString('en-US', {weekday: 'short', month: 'short', day: 'numeric'})}
                         </div>
                         <div className="flex items-center mt-1 text-gray-500">
-                          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                          </svg>
+                          <Clock className="w-4 h-4 mr-2 stroke-2" />
                           {booking.timeSlot}
                         </div>
                       </div>
-                      <span className="bg-red-600 bg-opacity-50 text-red-200 text-sm px-3 py-1 rounded-full font-medium">Cancelled</span>
+                      <span className="bg-red-100 text-red-600 text-sm px-3 py-1 rounded-full font-medium border border-red-200">
+                        <X className="w-3 h-3 inline-block mr-1 stroke-2" />
+                        Cancelled
+                      </span>
                     </div>
                     
-                    <div className="border-t border-gray-700 pt-4 mt-4 space-y-2">
+                    <div className="border-t border-gray-100 pt-4 mt-4 space-y-2">
                       <div className="flex items-center">
-                        <span className="text-gray-500 w-20">Name:</span> 
-                        <span className="font-medium text-gray-400">{booking.name}</span>
+                        <span className="text-gray-400 w-20">Name:</span> 
+                        <span className="font-medium text-gray-600">{booking.name}</span>
                       </div>
                       <div className="flex items-center">
-                        <span className="text-gray-500 w-20">Phone:</span> 
-                        <span className="font-medium text-gray-400">{booking.phoneNumber}</span>
+                        <span className="text-gray-400 w-20">Phone:</span> 
+                        <span className="font-medium text-gray-600">{booking.phoneNumber}</span>
                       </div>
                     </div>
                   </div>
@@ -403,10 +399,8 @@ const MyAppointments = () => {
         )}
         
         <div className="text-center mt-12">
-          <Link to="/" className="inline-flex items-center text-blue-400 hover:text-blue-300 transition">
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-            </svg>
+          <Link to="/" className="inline-flex items-center text-blue-600 hover:text-blue-700 transition-colors font-medium">
+            <ChevronLeft className="w-5 h-5 mr-2" />
             Back to Homepage
           </Link>
         </div>
