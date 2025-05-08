@@ -17,9 +17,12 @@ import EditOwner from './Pages/HomeOwnerDetails/EditOnwer';
 import OwnerServices from './Pages/Services/OwnerServices';
 import CleaningForm from './Pages/Services/CleaningForm';
 import HealthForm from './Pages/Services/HealthForm';
-import VerifyServices from './Pages/Services/VerifyServices';
 import FoodForm from './Pages/Services/FoodForm';
 import AllBookings from './Pages/Bookings/AllBookings';
+import MyServices from './Pages/Services/MyServices';
+import SecurityForm from './Pages/Services/SecurityForm';
+import LaundryForm from './Pages/Services/LaundryForm';
+import MaintenanceForm from './Pages/Services/MaintenanceForm';
 
 const App = () => {
   const [userRole, setUserRole] = useState(null); // Manage user role state
@@ -69,8 +72,11 @@ const App = () => {
                     <Route path="/ownerserevices" element={<OwnerServices />} />
                     <Route path="/cleaningform" element={<CleaningForm />} />
                     <Route path="/healthform" element={<HealthForm />} />
-                    <Route path="/verifyservices" element={<VerifyServices />} />
+                    <Route path="/Myservices" element={<MyServices />} />
                     <Route path="/foodform" element={<FoodForm />} />
+                    <Route path="/securityform" element={<SecurityForm />} />
+                    <Route path="/laundryform" element={<LaundryForm />} />
+                    <Route path="/maintenanceform" element={<MaintenanceForm />} />
                   </>
                 )}
                 {userRole === 'admin' && (

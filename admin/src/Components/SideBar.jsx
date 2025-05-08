@@ -216,9 +216,9 @@ const SideBar = () => {
                       </Link>
                     </li>
                     <li>
-                      <Link to="/verifyservices" className="flex items-center p-2 text-gray-600 rounded hover:bg-gray-200 hover:text-gray-900 transition-all">
+                      <Link to="/Myservices" className="flex items-center p-2 text-gray-600 rounded hover:bg-gray-200 hover:text-gray-900 transition-all">
                         <span className="mr-2">•</span>
-                        <span>Verify</span>
+                        <span>My Services</span>
                       </Link>
                     </li>
                   </ul>

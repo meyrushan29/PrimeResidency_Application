@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export const AvHome = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     title: '',
     price: '',
@@ -22,7 +24,7 @@ export const AvHome = () => {
     return () => {
       previewImages.forEach(url => URL.revokeObjectURL(url));
     };
-  }, []);
+  }, [previewImages]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -84,10 +86,22 @@ export const AvHome = () => {
     return Object.keys(errors).length === 0;
   };
 
+  const handleCancel = () => {
+    // Ask for confirmation before discarding changes
+    if (window.confirm('Are you sure you want to cancel? All your changes will be lost.')) {
+      // Clean up preview image URLs
+      previewImages.forEach(url => URL.revokeObjectURL(url));
+      // Navigate back to the management page
+      navigate('/manageaddhome');
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!validateForm()) {
+      // Scroll to the top to show errors
+      window.scrollTo(0, 0);
       return;
     }
     
@@ -105,8 +119,7 @@ export const AvHome = () => {
       });
       
       // Add each image file to FormData with the correct field name
-      // eslint-disable-next-line no-unused-vars
-      formData.images.forEach((image, index) => {
+      formData.images.forEach((image) => {
         submitData.append('images', image); // Use 'images' as the field name to match backend
       });
       
@@ -123,22 +136,11 @@ export const AvHome = () => {
       if (data.success) {
         alert('Listing created successfully!');
         
-        // Reset form after successful submission
-        setFormData({
-          title: '',
-          price: '',
-          area: '',
-          bedrooms: '',
-          bathrooms: '',
-          furnished: false,
-          view: '',
-          description: '',
-          images: []
-        });
-        
-        // Clear preview images
+        // Clean up preview image URLs before navigating
         previewImages.forEach(url => URL.revokeObjectURL(url));
-        setPreviewImages([]);
+        
+        // Navigate to management page after successful submission
+        navigate('/manageaddhome');
       } else {
         alert(`Error: ${data.error || 'Failed to create listing'}`);
       }
@@ -346,8 +348,16 @@ export const AvHome = () => {
           )}
         </div>
         
-        {/* Submit Button */}
-        <div className="flex justify-end pt-4">
+        {/* Action Buttons */}
+        <div className="flex justify-between pt-4">
+          <button
+            type="button"
+            onClick={handleCancel}
+            className="px-6 py-2 bg-gray-500 text-white font-medium rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+          >
+            Cancel
+          </button>
+          
           <button
             type="submit"
             className={`px-6 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${isSubmitting || formData.images.length < 3 ? 'opacity-50 cursor-not-allowed' : ''}`}
