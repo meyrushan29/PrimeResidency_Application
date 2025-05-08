@@ -20,6 +20,7 @@ const LaundryForm = () => {
   const [submissionError, setSubmissionError] = useState('');
   const navigate = useNavigate();
 
+  //handle change
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({

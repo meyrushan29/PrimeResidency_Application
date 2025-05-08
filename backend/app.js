@@ -21,8 +21,8 @@ require('dotenv').config();
 const app = express();
 
 // Middleware
-// app.use(cors());
-////////
+ app.use(cors());
+/*
 const allowedOrigins = ['http://localhost:5173','http://localhost:8001']; // Frontend dev origin
 
 app.use(cors({
@@ -35,7 +35,7 @@ app.use(cors({
   },
   credentials: true, // <- This is important for cookie support
 }));
-//////////
+*/
 app.use(express.json());
 app.use(cookieParser());
 
@@ -50,12 +50,13 @@ app.use('/uploads', express.static('uploads'));
 // Serve images from homeimg directory
 app.use('/homeimg', express.static('homeimg'));
 
-//////////
+/*
 app.use((req, res, next) => {
   console.log('Request origin:', req.headers.origin);
   next();
 });
-//////////
+*/
+
 // Connect to the database
 connectDB();
 

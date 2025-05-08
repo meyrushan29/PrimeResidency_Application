@@ -75,7 +75,7 @@ const App = () => {
                     <Route path="/securityform" element={<SecurityForm/>} />
                     <Route path="/laundryform" element={<LaundryForm/>}/>
                     <Route path="/maintenanceform" element={<MaintenanceForm/>}/>
-                    <Route path="/foodform" element={<FoodForm />} />
+                    <Route path="/foodform" element={<FoodForm />} /> 
                   </>
                 )}
                 {userRole === 'admin' && (
