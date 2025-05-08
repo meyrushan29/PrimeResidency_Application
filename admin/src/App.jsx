@@ -20,6 +20,8 @@ import HealthForm from './Pages/Services/HealthForm';
 import MyServices from './Pages/Services/MyServices';
 import FoodForm from './Pages/Services/FoodForm';
 import SecurityForm from './Pages/Services/SecurityForm';
+import LaundryForm from './Pages/Services/LaundryForm';
+import MaintenanceForm from './Pages/Services/MaintenanceForm';
 
 const App = () => {
   const [userRole, setUserRole] = useState(null); // Manage user role state
@@ -71,6 +73,8 @@ const App = () => {
                     <Route path="/healthform" element={<HealthForm />} />
                     <Route path="/Myservices" element={<MyServices/>} />
                     <Route path="/securityform" element={<SecurityForm/>} />
+                    <Route path="/laundryform" element={<LaundryForm/>}/>
+                    <Route path="/maintenanceform" element={<MaintenanceForm/>}/>
                     <Route path="/foodform" element={<FoodForm />} />
                   </>
                 )}
@@ -85,6 +89,7 @@ const App = () => {
                     <Route path="/pollupdate/:id" element={<PollUpdate />} />
                     <Route path="/addowner" element={<AddOwner />} />
                     <Route path="/editowner" element={<EditOwner />} />
+                    <Route path="/adbookings" element={<AllBookings />} />
                   </>
                 )}
                 <Route path="*" element={<Navigate to="/" />} />

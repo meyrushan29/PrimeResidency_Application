@@ -7,6 +7,7 @@ const apartmentRoutes = require('./routes/apartmentRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
 const authRoutes = require('./routes/authRoutes');
 const accountRoutes = require('./routes/AccountRoutes');
+const HealthRoutes = require('./routes/HealthRoutes')
 const CleaningRoutes = require('./routes/CleaningRoutes')
 const { errorHandler } = require('./middleware/auth');
 const cookieParser = require('cookie-parser');
@@ -20,7 +21,21 @@ require('dotenv').config();
 const app = express();
 
 // Middleware
-app.use(cors());
+// app.use(cors());
+////////
+const allowedOrigins = ['http://localhost:5173','http://localhost:8001']; // Frontend dev origin
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true, // <- This is important for cookie support
+}));
+//////////
 app.use(express.json());
 app.use(cookieParser());
 
@@ -35,7 +50,12 @@ app.use('/uploads', express.static('uploads'));
 // Serve images from homeimg directory
 app.use('/homeimg', express.static('homeimg'));
 
-
+//////////
+app.use((req, res, next) => {
+  console.log('Request origin:', req.headers.origin);
+  next();
+});
+//////////
 // Connect to the database
 connectDB();
 
@@ -46,6 +66,7 @@ app.use('/api/apartments', apartmentRoutes);
 app.use('/api', bookingRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/authaccount', accountRoutes);
+app.use('/api/healthservice', HealthRoutes);
 app.use('/api/cleaningservice', CleaningRoutes);
 
 

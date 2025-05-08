@@ -12,6 +12,7 @@ import Services from './Pages/Services';
 import ViewOneHome from './Pages/ViewOneHome';
 import Login from './Pages/Login';
 import MyViewAppointments from './Pages/MyViewAppointments';
+import EditBooking from './Pages/EditBooking';
  
 
 function App() {
@@ -53,6 +54,9 @@ function App() {
         } />
         <Route path="/my-appointments" element={
           isAuthenticated ? <MyViewAppointments /> : <Navigate to="/login" />
+        } />
+        <Route path="/edit-booking/:id" element={
+          isAuthenticated ? <EditBooking /> : <Navigate to="/login" />
         } />
          
         

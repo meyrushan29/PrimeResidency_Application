@@ -1,10 +1,9 @@
-const Cleaning = require('../models/Cleaning');  // Adjust to your model path
+const Cleaning = require('../models/Cleaning');
 
 // Create a new cleaning service request
 const createCleaningRequest = async (req, res) => {
   const { ownerId, name, email, phoneNumber, serviceType, numberOfStaff, date, time, additionalNotes } = req.body;
 
-  // Validate the request data
   if (!ownerId || !/^Ow\d{4}$/.test(ownerId)) {
     return res.status(400).json({ message: 'Invalid owner ID format (must start with "Ow" followed by 4 digits)' });
   }
@@ -14,22 +13,19 @@ const createCleaningRequest = async (req, res) => {
   }
 
   try {
-    // Format the date properly
     const formattedDate = new Date(date);
-    
-    // Check if the requested service is already scheduled for the same date and time
-    const existingRequest = await Cleaning.findOne({ 
-      ownerId, 
-      date: formattedDate, 
-      time, 
-      status: { $ne: 'cancelled' } // Ignore cancelled requests
+
+    const existingRequest = await Cleaning.findOne({
+      ownerId,
+      date: formattedDate,
+      time,
+      status: { $ne: 'cancelled' }
     });
-    
+
     if (existingRequest) {
       return res.status(400).json({ message: 'A cleaning service is already scheduled for this time' });
     }
 
-    // Create and save the new cleaning service request
     const newCleaningRequest = new Cleaning({
       ownerId,
       name,
@@ -40,7 +36,7 @@ const createCleaningRequest = async (req, res) => {
       date: formattedDate,
       time,
       additionalNotes,
-      status: 'confirmed'
+      state: 'Pending'
     });
 
     await newCleaningRequest.save();
@@ -51,45 +47,106 @@ const createCleaningRequest = async (req, res) => {
   }
 };
 
-// Get available time slots for a specific date
-const getAvailableSlots = async (req, res) => {
-  const { date } = req.query;
-  
-  if (!date) {
-    return res.status(400).json({ message: 'Date is required' });
+// Update a cleaning service request
+const updateCleaningRequest = async (req, res) => {
+  const { requestId } = req.params;
+  const {
+    ownerId,
+    name,
+    email,
+    phoneNumber,
+    serviceType,
+    numberOfStaff,
+    date,
+    time,
+    additionalNotes,
+    state
+  } = req.body;
+
+  if (!requestId) {
+    return res.status(400).json({ message: 'Request ID is required' });
   }
-  
+
   try {
-    const formattedDate = new Date(date);
-    
-    // Find all bookings for the specified date
-    const bookings = await Cleaning.find({ 
-      date: formattedDate,
-      status: { $ne: 'cancelled' }
-    });
-    
-    // Create array of all possible time slots (9AM to 5PM, hourly)
-    const allTimeSlots = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
-    
-    // Filter out booked slots
-    const bookedTimes = bookings.map(booking => booking.time);
-    const availableSlots = allTimeSlots.filter(slot => !bookedTimes.includes(slot));
-    
-    return res.status(200).json(availableSlots);
+    const request = await Cleaning.findById(requestId);
+
+    if (!request) {
+      return res.status(404).json({ message: 'Cleaning request not found' });
+    }
+
+    // Update all editable fields
+    if (ownerId) request.ownerId = ownerId;
+    if (name) request.name = name;
+    if (email) request.email = email;
+    if (phoneNumber) request.phoneNumber = phoneNumber;
+    if (serviceType) request.serviceType = serviceType;
+    if (numberOfStaff) request.numberOfStaff = numberOfStaff;
+    if (date) request.date = new Date(date);
+    if (time) request.time = time;
+    if (additionalNotes !== undefined) request.additionalNotes = additionalNotes;
+    if (state) request.state = state;
+
+    await request.save();
+
+    return res.status(200).json({ message: 'Cleaning request updated successfully', updatedService: request });
   } catch (error) {
-    console.error('Error getting available slots:', error);
+    console.error('Error updating cleaning request:', error);
     return res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
 
-// Get all cleaning service requests for a specific owner
+// Get all cleaning services
+const getAllServices = async (req, res) => {
+  try {
+    const allServices = await Cleaning.find();
+    return res.status(200).json({
+      success: true,
+      message: 'Cleaning services retrieved successfully',
+      allServices
+    });
+  } catch (error) {
+    console.error('Error fetching cleaning services:', error.message);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to retrieve cleaning services',
+      error: error.message
+    });
+  }
+};
+
+// Cancel a cleaning service request
+const cancelCleaningRequest = async (req, res) => {
+  const { requestId } = req.params;
+
+  if (!requestId) {
+    return res.status(400).json({ message: 'Request ID is required' });
+  }
+
+  try {
+    const request = await Cleaning.findById(requestId);
+
+    if (!request) {
+      return res.status(404).json({ message: 'Cleaning request not found' });
+    }
+
+    request.state = 'cancelled';
+    await request.save();
+
+    return res.status(200).json({ message: 'Cleaning request cancelled successfully', request });
+  } catch (error) {
+    console.error('Error cancelling cleaning request:', error);
+    return res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+// Get owner-specific requests
 const getOwnerRequests = async (req, res) => {
   const { ownerId } = req.params;
-  
+
   if (!ownerId) {
     return res.status(400).json({ message: 'Owner ID is required' });
   }
-  
+
   try {
     const requests = await Cleaning.find({ ownerId }).sort({ date: 1, time: 1 });
     return res.status(200).json(requests);
@@ -99,67 +156,54 @@ const getOwnerRequests = async (req, res) => {
   }
 };
 
-// Cancel a cleaning service request
-const cancelCleaningRequest = async (req, res) => {
-  const { requestId } = req.params;
-  
-  if (!requestId) {
-    return res.status(400).json({ message: 'Request ID is required' });
+// Get available slots for a date
+const getAvailableSlots = async (req, res) => {
+  const { date } = req.query;
+
+  if (!date) {
+    return res.status(400).json({ message: 'Date is required' });
   }
-  
+
   try {
-    const request = await Cleaning.findById(requestId);
-    
-    if (!request) {
-      return res.status(404).json({ message: 'Cleaning request not found' });
-    }
-    
-    request.status = 'cancelled';
-    await request.save();
-    
-    return res.status(200).json({ message: 'Cleaning request cancelled successfully', request });
+    const formattedDate = new Date(date);
+    const bookings = await Cleaning.find({
+      date: formattedDate,
+      status: { $ne: 'cancelled' }
+    });
+
+    const allTimeSlots = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
+    const bookedTimes = bookings.map(booking => booking.time);
+    const availableSlots = allTimeSlots.filter(slot => !bookedTimes.includes(slot));
+
+    return res.status(200).json(availableSlots);
   } catch (error) {
-    console.error('Error cancelling cleaning request:', error);
+    console.error('Error getting available slots:', error);
     return res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
 
-// Update a cleaning service request
-const updateCleaningRequest = async (req, res) => {
-  const { requestId } = req.params;
-  const { serviceType, numberOfStaff, date, time, additionalNotes } = req.body;
-  
-  if (!requestId) {
-    return res.status(400).json({ message: 'Request ID is required' });
-  }
-  
+// Delete service
+const handleDeleteService = async (req, res) => {
   try {
-    const request = await Cleaning.findById(requestId);
-    
-    if (!request) {
-      return res.status(404).json({ message: 'Cleaning request not found' });
+    const service = await Cleaning.findById(req.params.requestId);
+
+    if (!service) {
+      return res.status(404).json({ message: 'Service request not found' });
     }
-    
-    // Update fields if provided
-    if (serviceType) request.serviceType = serviceType;
-    if (numberOfStaff) request.numberOfStaff = numberOfStaff;
-    if (date) request.date = new Date(date);
-    if (time) request.time = time;
-    if (additionalNotes !== undefined) request.additionalNotes = additionalNotes;
-    
-    await request.save();
-    
-    return res.status(200).json({ message: 'Cleaning request updated successfully', request });
+
+    await Cleaning.findByIdAndDelete(req.params.requestId);
+    res.status(200).json({ message: 'Service deleted successfully' });
   } catch (error) {
-    console.error('Error updating cleaning request:', error);
-    return res.status(500).json({ message: 'Server error', error: error.message });
+    res.status(500).json({ message: 'Server error while deleting service' });
   }
 };
 
 module.exports = {
   createCleaningRequest,
+  updateCleaningRequest,
+  getAllServices,
   getAvailableSlots,
   getOwnerRequests,
   cancelCleaningRequest,
-  updateCleaningRequest
+  handleDeleteService
 };

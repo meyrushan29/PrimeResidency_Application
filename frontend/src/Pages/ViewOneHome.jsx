@@ -11,6 +11,8 @@ const ViewOneHome = () => {
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [selectedDay, setSelectedDay] = useState(null);
   const [availableSlots, setAvailableSlots] = useState([]);
+  const [name, setName] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -116,6 +118,16 @@ const ViewOneHome = () => {
       return;
     }
 
+    if (!name.trim()) {
+      toast.error('Please enter your name');
+      return;
+    }
+
+    if (!phoneNumber.trim()) {
+      toast.error('Please enter your phone number');
+      return;
+    }
+
     const selectedDate = new Date();
     selectedDate.setDate(selectedDay);
 
@@ -126,7 +138,9 @@ const ViewOneHome = () => {
         apartmentId: apartment._id,
         date: selectedDate.toISOString().split('T')[0],
         timeSlot: selectedSlot,
-        userId: userId
+        userId: userId,
+        name: name,
+        phoneNumber: phoneNumber
       });
 
       toast.success('Booking confirmed!');
@@ -291,6 +305,32 @@ const ViewOneHome = () => {
         {/* Booking Section */}
         <div className="bg-gray-800 p-6 rounded-lg shadow-lg mt-8">
           <h2 className="text-2xl font-semibold text-white mb-6">Booking Slots</h2>
+          
+          {/* Personal Information */}
+          <div className="mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="name" className="block text-gray-300 mb-2">Full Name</label>
+              <input 
+                type="text" 
+                id="name" 
+                value={name} 
+                onChange={(e) => setName(e.target.value)} 
+                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter your full name"
+              />
+            </div>
+            <div>
+              <label htmlFor="phone" className="block text-gray-300 mb-2">Phone Number</label>
+              <input 
+                type="tel" 
+                id="phone" 
+                value={phoneNumber} 
+                onChange={(e) => setPhoneNumber(e.target.value)} 
+                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter your phone number"
+              />
+            </div>
+          </div>
           
           {/* Day Selection */}
           <div className="flex space-x-4 overflow-x-auto pb-4">

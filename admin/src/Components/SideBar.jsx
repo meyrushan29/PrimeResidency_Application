@@ -112,6 +112,22 @@ const SideBar = () => {
                   </ul>
                 )}
               </li>
+              <li>
+                  <button
+                    onClick={() => setIsOwnerExpanded(!isOwnerExpanded)}
+                    className="w-full flex items-center justify-between p-2 text-gray-700 rounded hover:bg-gray-200 hover:text-gray-900 transition-all"
+                  >
+                    <div className="flex items-center">
+                      <span className="mr-3">📅</span>
+                      <Link to="/adbookings" className="flex items-center p-2 text-gray-600 rounded hover:bg-gray-200 hover:text-gray-900 transition-all">
+                      <span>Booking to view</span>
+                      </Link>
+                    </div>
+                    <span className="text-sm">
+                      { '►'}
+                    </span>
+                  </button>
+              </li>
 
               <li>
                 <button
@@ -142,6 +158,7 @@ const SideBar = () => {
                   </ul>
                 )}
               </li>
+              
             </>
           )}
 

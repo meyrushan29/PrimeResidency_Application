@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-const SecurityForm = () => {
+const MaintenanceForm = () => {
   const [formData, setFormData] = useState({
     ownerId: '',
     name: '',
@@ -87,7 +87,9 @@ const SecurityForm = () => {
       setSubmissionError('');
 
       try {
-        const formattedData = { ...formData };
+        const formattedData = {
+          ...formData,
+        };
 
         const response = await axios.post('http://localhost:8001/api/cleaningservice/cleaning', formattedData);
 
@@ -97,7 +99,7 @@ const SecurityForm = () => {
         }
       } catch (error) {
         console.error('Error submitting cleaning request:', error);
-        if (error.response?.data?.message) {
+        if (error.response && error.response.data && error.response.data.message) {
           setSubmissionError(error.response.data.message);
         } else {
           setSubmissionError('Error submitting the request. Please try again.');
@@ -109,28 +111,27 @@ const SecurityForm = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-100 to-white p-10">
+    <div className="min-h-screen bg-gradient-to-br from-red-100 to-white p-10">
       <div className="relative max-w-lg mx-auto bg-white p-8 rounded-xl shadow-xl border border-gray-300">
+        
         {/* Back button */}
         <button
           onClick={() => navigate('/ownerservices')}
-          className="absolute top-4 left-4 p-2 bg-purple-500 text-white rounded-full hover:bg-purple-600 transition duration-300 shadow-lg transform hover:scale-110 focus:outline-none"
+          className="absolute top-4 left-4 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition duration-300 shadow-lg transform hover:scale-110 focus:outline-none"
         >
           &#8592;
         </button>
 
-        <h1 className="text-3xl font-semibold text-purple-800 mb-6 text-center">
-          🛡️ Security Services
-        </h1>
+        <h1 className="text-3xl font-semibold text-red-800 mb-6 text-center">🛠️ Maintenance Services</h1>
 
         {isSubmitted ? (
-          <div className="text-center text-purple-600">
+          <div className="text-center text-green-600">
             <h2 className="text-2xl font-bold">Thank you for your request!</h2>
             <p className="mt-2 text-lg">We will contact you shortly to confirm your service.</p>
 
             <button
               onClick={() => navigate('/ownerservices')}
-              className="mt-6 px-6 py-3 bg-purple-500 text-white font-semibold rounded-lg hover:bg-purple-600 transition duration-300 shadow-md focus:outline-none focus:ring-2 focus:ring-purple-400"
+              className="mt-6 px-6 py-3 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition duration-300 shadow-md focus:outline-none focus:ring-2 focus:ring-red-400"
             >
               More Services
             </button>
@@ -148,7 +149,7 @@ const SecurityForm = () => {
                 name="ownerId"
                 value={formData.ownerId}
                 onChange={handleChange}
-                className="mt-1 p-3 w-full border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-300"
+                className="mt-1 p-3 w-full border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-300"
               />
               {errors.ownerId && <p className="text-red-600 text-sm">{errors.ownerId}</p>}
             </div>
@@ -162,7 +163,7 @@ const SecurityForm = () => {
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                className="mt-1 p-3 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="mt-1 p-3 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
               />
               {errors.name && <p className="text-red-600 text-sm">{errors.name}</p>}
             </div>
@@ -176,7 +177,7 @@ const SecurityForm = () => {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="mt-1 p-3 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="mt-1 p-3 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
               />
               {errors.email && <p className="text-red-600 text-sm">{errors.email}</p>}
             </div>
@@ -190,7 +191,7 @@ const SecurityForm = () => {
                 name="phoneNumber"
                 value={formData.phoneNumber}
                 onChange={handleChange}
-                className="mt-1 p-3 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="mt-1 p-3 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
               />
               {errors.phoneNumber && <p className="text-red-600 text-sm">{errors.phoneNumber}</p>}
             </div>
@@ -203,7 +204,7 @@ const SecurityForm = () => {
                 name="serviceType"
                 value={formData.serviceType}
                 onChange={handleChange}
-                className="mt-1 p-3 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="mt-1 p-3 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
               >
                 <option value="daily">Daily</option>
                 <option value="weekly">Weekly</option>
@@ -222,7 +223,7 @@ const SecurityForm = () => {
                 name="numberOfStaff"
                 value={formData.numberOfStaff}
                 onChange={handleChange}
-                className="mt-1 p-3 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="mt-1 p-3 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
                 min="1"
                 max="10"
               />
@@ -238,7 +239,7 @@ const SecurityForm = () => {
                 name="date"
                 value={formData.date}
                 onChange={handleChange}
-                className="mt-1 p-3 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="mt-1 p-3 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
               />
               {errors.date && <p className="text-red-600 text-sm">{errors.date}</p>}
             </div>
@@ -252,34 +253,29 @@ const SecurityForm = () => {
                 name="time"
                 value={formData.time}
                 onChange={handleChange}
-                className="mt-1 p-3 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="mt-1 p-3 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
               />
               {errors.time && <p className="text-red-600 text-sm">{errors.time}</p>}
             </div>
 
             {/* Additional Notes */}
             <div className="mb-4">
-              <label htmlFor="additionalNotes" className="block text-sm font-medium text-gray-700">
-                Additional Notes
-                <p className="text-orange-600 text-sm mt-2">
-                  Mention any special security instructions or guard preferences such as Night Guard,24/7 Surveillance,Event Security etc!
-                </p>
-              </label>
+              <label htmlFor="additionalNotes" className="block text-sm font-medium text-gray-700">Additional Notes</label>
               <textarea
                 id="additionalNotes"
                 name="additionalNotes"
                 value={formData.additionalNotes}
                 onChange={handleChange}
-                className="mt-1 p-3 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="mt-1 p-3 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
               />
             </div>
 
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full py-3 px-4 bg-purple-500 text-white font-semibold rounded-lg hover:bg-purple-600 transition duration-300"
+              className="w-full py-3 px-4 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition duration-300"
             >
-              Request Security Service
+              Request Maintenance Service
             </button>
 
             {/* Submission Error */}
@@ -293,4 +289,4 @@ const SecurityForm = () => {
   );
 };
 
-export default SecurityForm;
+export default MaintenanceForm;
