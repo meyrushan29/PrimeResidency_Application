@@ -12,7 +12,10 @@ import {
   ArrowLeft, 
   Save, 
   CalendarClock,
-  CalendarDays
+  CalendarDays,
+  AlertCircle,
+  Info,
+  Check
 } from 'lucide-react';
 
 // Configure axios with the base URL - add this line
@@ -29,6 +32,13 @@ const EditBooking = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const { id: bookingId } = useParams();
   const navigate = useNavigate();
+  
+  // Validation states
+  const [nameError, setNameError] = useState('');
+  const [phoneError, setPhoneError] = useState('');
+  const [dayError, setDayError] = useState('');
+  const [timeError, setTimeError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const generateFutureDays = () => {
     const today = new Date();
@@ -64,6 +74,52 @@ const EditBooking = () => {
     "15:00", "15:30", "16:00", "16:30", "17:00", 
     "17:30", "18:00", "18:30", "19:00", "19:30", "20:00"
   ];
+
+  // Validation functions
+  const validateName = (value) => {
+    if (!value.trim()) {
+      setNameError('Name is required');
+      return false;
+    } else if (value.trim().length < 3) {
+      setNameError('Name must be at least 3 characters');
+      return false;
+    } else if (!/^[a-zA-Z\s.'-]+$/.test(value)) {
+      setNameError('Name contains invalid characters');
+      return false;
+    }
+    setNameError('');
+    return true;
+  };
+
+  const validatePhone = (value) => {
+    if (!value.trim()) {
+      setPhoneError('Phone number is required');
+      return false;
+    } else if (!/^(?:\+94|0)?[0-9]{9,10}$/.test(value.replace(/\s/g, ''))) {
+      setPhoneError('Please enter a valid Sri Lankan phone number');
+      return false;
+    }
+    setPhoneError('');
+    return true;
+  };
+
+  const validateDay = () => {
+    if (!selectedDay) {
+      setDayError('Please select a day for your appointment');
+      return false;
+    }
+    setDayError('');
+    return true;
+  };
+
+  const validateTimeSlot = () => {
+    if (!selectedSlot) {
+      setTimeError('Please select a time slot for your appointment');
+      return false;
+    }
+    setTimeError('');
+    return true;
+  };
 
   // Function to fetch booking data
   const fetchBookingData = async () => {
@@ -166,6 +222,7 @@ const EditBooking = () => {
   const handleDayClick = (dayData) => {
     console.log('Selected day:', dayData.fullDate);
     setSelectedDay(dayData.fullDate);
+    setDayError(''); // Clear day error when a day is selected
     
     if (booking && booking.apartmentId) {
       // Determine apartment ID based on how it's stored
@@ -180,23 +237,23 @@ const EditBooking = () => {
   const handleSlotClick = (slot) => {
     console.log('Selected time slot:', slot);
     setSelectedSlot(slot);
+    setTimeError(''); // Clear time error when a slot is selected
   };
 
   const handleUpdateBooking = async () => {
-    if (!selectedDay || !selectedSlot) {
-      toast.error('Please select both a day and time slot');
+    // Validate all fields
+    const isNameValid = validateName(name);
+    const isPhoneValid = validatePhone(phoneNumber);
+    const isDayValid = validateDay();
+    const isTimeValid = validateTimeSlot();
+    
+    // If any validation fails, return early
+    if (!isNameValid || !isPhoneValid || !isDayValid || !isTimeValid) {
+      toast.error('Please correct the errors in the form');
       return;
     }
 
-    if (!name.trim()) {
-      toast.error('Please enter your name');
-      return;
-    }
-
-    if (!phoneNumber.trim()) {
-      toast.error('Please enter your phone number');
-      return;
-    }
+    setIsSubmitting(true);
 
     try {
       console.log('Updating booking with data:', {
@@ -225,11 +282,25 @@ const EditBooking = () => {
     } catch (err) {
       console.error('Update failed:', err);
       toast.error(err.response?.data?.message || 'Failed to update booking');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleCancel = () => {
     navigate('/my-appointments');
+  };
+
+  const handleNameChange = (e) => {
+    const value = e.target.value;
+    setName(value);
+    validateName(value);
+  };
+
+  const handlePhoneChange = (e) => {
+    const value = e.target.value;
+    setPhoneNumber(value);
+    validatePhone(value);
   };
 
   if (loading) {
@@ -292,41 +363,59 @@ const EditBooking = () => {
           <div className="mb-8 space-y-6">
             <h3 className="text-lg font-bold text-gray-800 flex items-center mb-4">
               <User size={18} className="text-blue-600 mr-2" />
-              Personal Information
+              Personal Information <span className="text-red-500 ml-1">*</span>
             </h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label htmlFor="name" className="block text-gray-700 text-sm font-medium mb-1">Full Name</label>
+                <label htmlFor="name" className="block text-gray-700 text-sm font-medium mb-1">
+                  Full Name <span className="text-red-500">*</span>
+                </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <User size={16} className="text-gray-400" />
+                    <User size={16} className={`${nameError ? 'text-red-400' : 'text-gray-400'}`} />
                   </div>
                   <input 
                     type="text" 
                     id="name" 
                     value={name} 
-                    onChange={(e) => setName(e.target.value)} 
-                    className="w-full bg-gray-50 border border-gray-300 rounded-lg pl-10 pr-4 py-2.5 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    onChange={handleNameChange}
+                    className={`w-full bg-gray-50 border ${nameError ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'} rounded-lg pl-10 pr-4 py-2.5 text-gray-700 focus:outline-none focus:ring-2 focus:border-transparent`}
                     placeholder="Enter your full name"
                   />
                 </div>
+                {nameError && (
+                  <p className="mt-1 text-sm text-red-600 flex items-start">
+                    <AlertCircle size={14} className="mr-1 mt-0.5 flex-shrink-0" /> 
+                    {nameError}
+                  </p>
+                )}
               </div>
               <div>
-                <label htmlFor="phone" className="block text-gray-700 text-sm font-medium mb-1">Phone Number</label>
+                <label htmlFor="phone" className="block text-gray-700 text-sm font-medium mb-1">
+                  Phone Number <span className="text-red-500">*</span>
+                </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Phone size={16} className="text-gray-400" />
+                    <Phone size={16} className={`${phoneError ? 'text-red-400' : 'text-gray-400'}`} />
                   </div>
                   <input 
                     type="tel" 
                     id="phone" 
                     value={phoneNumber} 
-                    onChange={(e) => setPhoneNumber(e.target.value)} 
-                    className="w-full bg-gray-50 border border-gray-300 rounded-lg pl-10 pr-4 py-2.5 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    onChange={handlePhoneChange}
+                    className={`w-full bg-gray-50 border ${phoneError ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'} rounded-lg pl-10 pr-4 py-2.5 text-gray-700 focus:outline-none focus:ring-2 focus:border-transparent`}
                     placeholder="Enter your phone number"
                   />
                 </div>
+                {phoneError ? (
+                  <p className="mt-1 text-sm text-red-600 flex items-start">
+                    <AlertCircle size={14} className="mr-1 mt-0.5 flex-shrink-0" /> 
+                    {phoneError}
+                  </p>
+                ) : (
+                  <p className="mt-1 text-xs text-gray-500">Format: 07XXXXXXXX or +947XXXXXXX</p>
+                )}
               </div>
             </div>
           </div>
@@ -335,9 +424,17 @@ const EditBooking = () => {
           <div className="mb-8">
             <h3 className="text-lg font-bold text-gray-800 flex items-center mb-4">
               <CalendarDays size={18} className="text-blue-600 mr-2" />
-              Select Day
+              Select Day <span className="text-red-500 ml-1">*</span>
             </h3>
-            <div className="flex space-x-2 overflow-x-auto pb-4">
+            
+            {dayError && (
+              <div className="mb-3 p-2 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm flex items-center">
+                <AlertCircle size={16} className="mr-2 flex-shrink-0" />
+                {dayError}
+              </div>
+            )}
+            
+            <div className={`flex space-x-2 overflow-x-auto pb-4 ${dayError ? 'border border-red-300 rounded-lg p-2 bg-red-50' : ''}`}>
               {days.map((day) => (
                 <div 
                   key={day.fullDate}
@@ -364,9 +461,17 @@ const EditBooking = () => {
           <div className="mb-8">
             <h3 className="text-lg font-bold text-gray-800 flex items-center mb-4">
               <Clock size={18} className="text-blue-600 mr-2" />
-              Select Time
+              Select Time <span className="text-red-500 ml-1">*</span>
             </h3>
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7 gap-3">
+            
+            {timeError && (
+              <div className="mb-3 p-2 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm flex items-center">
+                <AlertCircle size={16} className="mr-2 flex-shrink-0" />
+                {timeError}
+              </div>
+            )}
+            
+            <div className={`grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7 gap-3 ${timeError ? 'border border-red-300 rounded-lg p-2 bg-red-50' : ''}`}>
               {timeSlots.map((slot) => {
                 const isAvailable = availableSlots.includes(slot);
                 return (
@@ -396,16 +501,26 @@ const EditBooking = () => {
                 );
               })}
             </div>
-            <p className="text-gray-500 text-sm mt-3 italic">
-              <info className="w-4 h-4 inline-block mr-1 text-blue-500" /> 
-              Only available time slots are selectable. Your current slot is included even if otherwise booked.
+            <div className="flex items-start mt-3">
+              <Info size={14} className="text-blue-500 mt-0.5 mr-1.5 flex-shrink-0" />
+              <p className="text-gray-500 text-sm italic">
+                Only available time slots are selectable. Your current slot is included even if otherwise booked.
+              </p>
+            </div>
+          </div>
+          
+          {/* Required fields note */}
+          <div className="mb-6 pb-6 border-b border-gray-100">
+            <p className="text-sm text-gray-500 flex items-center">
+              <span className="text-red-500 mr-1">*</span> Required fields
             </p>
           </div>
           
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-end mt-8 pt-4 border-t border-gray-100">
+          <div className="flex flex-col sm:flex-row gap-4 justify-end mt-8 pt-4">
             <button 
               onClick={handleCancel}
+              type="button"
               className="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors flex items-center justify-center"
             >
               <XCircle size={18} className="mr-2" />
@@ -413,10 +528,23 @@ const EditBooking = () => {
             </button>
             <button 
               onClick={handleUpdateBooking}
-              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg font-medium transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center"
+              type="button"
+              disabled={isSubmitting || !!nameError || !!phoneError}
+              className={`px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg font-medium transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center ${
+                isSubmitting || nameError || phoneError ? 'opacity-70 cursor-not-allowed' : ''
+              }`}
             >
-              <Save size={18} className="mr-2" />
-              Update Booking
+              {isSubmitting ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                  Updating...
+                </>
+              ) : (
+                <>
+                  <Save size={18} className="mr-2" />
+                  Update Booking
+                </>
+              )}
             </button>
           </div>
         </div>

@@ -12,6 +12,7 @@ const {
 } = require('../controller/bookingController');
 const Booking = require('../models/Booking');
 
+
 // Create a new booking
 router.post('/booking', createBooking);
 

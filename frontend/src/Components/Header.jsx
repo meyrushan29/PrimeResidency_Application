@@ -211,7 +211,9 @@ const Header = () => {
                   <div 
                     key={index} 
                     className="bg-fuchsia-200/30 p-6 rounded-xl border border-white/50 transform transition-all duration-700 hover:scale-105 hover:bg-white/20 group"
-                    style={{ transitionDelay: `${800 + index * 100}ms` }}
+                    
+                    style={{ transitionDelay: `${20 + index * 1}ms` }}
+
                   >
                     <div className="text-3xl font-bold text-white mb-2">{stat.value}</div>
                     <div className="text-sm font-medium text-white mb-1">{stat.label}</div>
