@@ -7,6 +7,7 @@ const apartmentRoutes = require('./routes/apartmentRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
 const authRoutes = require('./routes/authRoutes');
 const accountRoutes = require('./routes/AccountRoutes');
+const ownerRoutes = require('./routes/ownerRoutes'); // ✅ Added
 const { errorHandler } = require('./middleware/auth');
 const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
@@ -30,10 +31,7 @@ if (process.env.NODE_ENV === 'development') {
 
 // Serve uploaded files
 app.use('/uploads', express.static('uploads'));
-
-// Serve images from homeimg directory
 app.use('/homeimg', express.static('homeimg'));
-
 
 // Connect to the database
 connectDB();
@@ -45,10 +43,12 @@ app.use('/api/apartments', apartmentRoutes);
 app.use('/api', bookingRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/authaccount', accountRoutes);
+app.use('/api/owners', ownerRoutes); // ✅ Mounted owner routes
 
 // Error handling middleware
 app.use(errorHandler);
 
+// Start server
 const PORT = process.env.PORT || 8001;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
