@@ -87,9 +87,56 @@ exports.getMe = asyncHandler(async (req, res) => {
       fullName: user.fullName,
       phoneNumber: user.phoneNumber,
       address: user.address,
-      gender: user.gender
+      gender: user.gender,
+      createdAt: user.createdAt
     }
   });
+});
+
+// @desc    Update user profile
+// @route   PUT /api/auth/update-profile
+// @access  Private
+exports.updateProfile = asyncHandler(async (req, res) => {
+  const { fullName, phoneNumber, address, gender } = req.body;
+
+  try {
+    // Find user
+    const user = await User.findById(req.user.id);
+    
+    if (!user) {
+      res.status(404);
+      throw new Error('User not found');
+    }
+
+    // Update fields
+    if (fullName) user.fullName = fullName;
+    if (phoneNumber !== undefined) user.phoneNumber = phoneNumber;
+    if (address !== undefined) user.address = address;
+    if (gender) user.gender = gender;
+
+    // Save updated user
+    const updatedUser = await user.save();
+
+    res.status(200).json({
+      success: true,
+      data: {
+        _id: updatedUser._id,
+        username: updatedUser.username,
+        email: updatedUser.email,
+        fullName: updatedUser.fullName,
+        phoneNumber: updatedUser.phoneNumber,
+        address: updatedUser.address,
+        gender: updatedUser.gender,
+        createdAt: updatedUser.createdAt
+      }
+    });
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Server Error'
+    });
+  }
 });
 
 // @desc    Log user out / clear cookie
@@ -144,4 +191,3 @@ const sendTokenResponse = (user, statusCode, res) => {
       }
     });
 };
-

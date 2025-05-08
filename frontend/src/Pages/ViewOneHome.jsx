@@ -15,7 +15,8 @@ import {
   XCircle,
   MapPin,
   CalendarClock,
-  Info
+  Info,
+  AlertCircle
 } from 'lucide-react';
 
 const ViewOneHome = () => {
@@ -28,6 +29,14 @@ const ViewOneHome = () => {
   const [availableSlots, setAvailableSlots] = useState([]);
   const [name, setName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
+  
+  // Validation states
+  const [nameError, setNameError] = useState('');
+  const [phoneError, setPhoneError] = useState('');
+  const [timeSlotError, setTimeSlotError] = useState('');
+  const [dayError, setDayError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -121,27 +130,92 @@ const ViewOneHome = () => {
 
   const handleSlotClick = (slot) => {
     setSelectedSlot(slot);
+    setTimeSlotError(''); // Clear time slot error when a slot is selected
   };
 
   const handleDayClick = (day) => {
     setSelectedDay(day);
+    setDayError(''); // Clear day error when a day is selected
+  };
+
+  // Validators
+  const validateName = (value) => {
+    if (!value.trim()) {
+      setNameError('Name is required');
+      return false;
+    } else if (value.trim().length < 3) {
+      setNameError('Name must be at least 3 characters');
+      return false;
+    } else if (!/^[a-zA-Z\s]+$/.test(value)) {
+      setNameError('Name should only contain letters and spaces');
+      return false;
+    }
+    setNameError('');
+    return true;
+  };
+
+  const validatePhone = (value) => {
+    if (!value.trim()) {
+      setPhoneError('Phone number is required');
+      return false;
+    } else if (!/^(?:\+94|0)?[0-9]{9,10}$/.test(value.replace(/\s/g, ''))) {
+      setPhoneError('Please enter a valid Sri Lankan phone number');
+      return false;
+    }
+    setPhoneError('');
+    return true;
+  };
+
+  const validateTimeSlot = () => {
+    if (!selectedSlot) {
+      setTimeSlotError('Please select a time slot');
+      return false;
+    }
+    setTimeSlotError('');
+    return true;
+  };
+
+  const validateDay = () => {
+    if (!selectedDay) {
+      setDayError('Please select a day');
+      return false;
+    }
+    setDayError('');
+    return true;
+  };
+
+  const handleNameChange = (e) => {
+    const value = e.target.value;
+    setName(value);
+    validateName(value);
+  };
+
+  const handlePhoneChange = (e) => {
+    const value = e.target.value;
+    setPhoneNumber(value);
+    validatePhone(value);
   };
 
   const handleBookAppointment = async () => {
-    if (!selectedDay || !selectedSlot) {
-      toast.error('Please select both a day and time slot');
+    // Reset all error messages
+    setNameError('');
+    setPhoneError('');
+    setTimeSlotError('');
+    setDayError('');
+    
+    // Validate all fields
+    const isNameValid = validateName(name);
+    const isPhoneValid = validatePhone(phoneNumber);
+    const isTimeSlotValid = validateTimeSlot();
+    const isDayValid = validateDay();
+    
+    if (!isNameValid || !isPhoneValid || !isTimeSlotValid || !isDayValid) {
+      // If any validation fails, show a general error
+      toast.error('Please correct the errors in the form');
       return;
     }
-
-    if (!name.trim()) {
-      toast.error('Please enter your name');
-      return;
-    }
-
-    if (!phoneNumber.trim()) {
-      toast.error('Please enter your phone number');
-      return;
-    }
+    
+    setIsSubmitting(true);
 
     const selectedDate = new Date();
     selectedDate.setDate(selectedDay);
@@ -167,6 +241,8 @@ const ViewOneHome = () => {
       } else {
         toast.error('Failed to book appointment');
       }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -403,31 +479,53 @@ const ViewOneHome = () => {
               {/* Personal Information */}
               <div className="space-y-4 mb-6">
                 <div>
-                  <label htmlFor="name" className="block text-gray-700 text-sm font-medium mb-1">Full Name</label>
+                  <label htmlFor="name" className="block text-gray-700 text-sm font-medium mb-1">
+                    Full Name <span className="text-red-500">*</span>
+                  </label>
                   <input 
                     type="text" 
                     id="name" 
                     value={name} 
-                    onChange={(e) => setName(e.target.value)} 
-                    className="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-2.5 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    onChange={handleNameChange}
+                    className={`w-full bg-gray-50 border ${nameError ? 'border-red-500' : 'border-gray-300'} rounded-lg px-4 py-2.5 text-gray-700 focus:outline-none focus:ring-2 ${nameError ? 'focus:ring-red-500' : 'focus:ring-blue-500'} focus:border-transparent`}
                     placeholder="Enter your full name"
                   />
+                  {nameError && (
+                    <p className="mt-1 text-sm text-red-600 flex items-center">
+                      <AlertCircle size={14} className="mr-1" /> {nameError}
+                    </p>
+                  )}
                 </div>
                 <div>
-                  <label htmlFor="phone" className="block text-gray-700 text-sm font-medium mb-1">Phone Number</label>
+                  <label htmlFor="phone" className="block text-gray-700 text-sm font-medium mb-1">
+                    Phone Number <span className="text-red-500">*</span>
+                  </label>
                   <input 
                     type="tel" 
                     id="phone" 
                     value={phoneNumber} 
-                    onChange={(e) => setPhoneNumber(e.target.value)} 
-                    className="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-2.5 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    onChange={handlePhoneChange}
+                    className={`w-full bg-gray-50 border ${phoneError ? 'border-red-500' : 'border-gray-300'} rounded-lg px-4 py-2.5 text-gray-700 focus:outline-none focus:ring-2 ${phoneError ? 'focus:ring-red-500' : 'focus:ring-blue-500'} focus:border-transparent`}
                     placeholder="Enter your phone number"
                   />
+                  {phoneError && (
+                    <p className="mt-1 text-sm text-red-600 flex items-center">
+                      <AlertCircle size={14} className="mr-1" /> {phoneError}
+                    </p>
+                  )}
+                  <p className="mt-1 text-xs text-gray-500">Format: 07XXXXXXXX or +947XXXXXXX</p>
                 </div>
               </div>
               
               <div className="border-t border-gray-100 pt-6 mb-6">
-                <label className="block text-gray-700 text-sm font-medium mb-3">Select a Day</label>
+                <label className="block text-gray-700 text-sm font-medium mb-3">
+                  Select a Day <span className="text-red-500">*</span>
+                </label>
+                {dayError && (
+                  <p className="mb-2 text-sm text-red-600 flex items-center">
+                    <AlertCircle size={14} className="mr-1" /> {dayError}
+                  </p>
+                )}
                 <div className="flex space-x-2 overflow-x-auto pb-2">
                   {days.map((day) => (
                     <div 
@@ -437,7 +535,7 @@ const ViewOneHome = () => {
                         selectedDay === day.date 
                           ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md' 
                           : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
-                      } cursor-pointer rounded-lg transition-all duration-200 min-w-16 h-20 p-2`}
+                      } ${dayError ? 'border border-red-500' : ''} cursor-pointer rounded-lg transition-all duration-200 min-w-16 h-20 p-2`}
                     >
                       <span className="text-xs font-medium">{day.day}</span>
                       <span className="text-lg font-bold">{day.date}</span>
@@ -450,8 +548,15 @@ const ViewOneHome = () => {
               </div>
               
               <div className="mb-6">
-                <label className="block text-gray-700 text-sm font-medium mb-3">Select a Time</label>
-                <div className="grid grid-cols-3 gap-2">
+                <label className="block text-gray-700 text-sm font-medium mb-3">
+                  Select a Time <span className="text-red-500">*</span>
+                </label>
+                {timeSlotError && (
+                  <p className="mb-2 text-sm text-red-600 flex items-center">
+                    <AlertCircle size={14} className="mr-1" /> {timeSlotError}
+                  </p>
+                )}
+                <div className={`grid grid-cols-3 gap-2 ${timeSlotError ? 'border border-red-500 p-2 rounded-lg' : ''}`}>
                   {timeSlots.map((slot) => (
                     <button
                       key={slot}
@@ -472,13 +577,27 @@ const ViewOneHome = () => {
               {/* Book Appointment Button */}
               <button 
                 onClick={handleBookAppointment}
-                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center"
+                disabled={isSubmitting}
+                className={`w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
               >
-                Book Appointment
-                <svg className="w-5 h-5 ml-2" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
+                {isSubmitting ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    Book Appointment
+                    <svg className="w-5 h-5 ml-2" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
+                  </>
+                )}
               </button>
+              
+              <p className="text-xs text-gray-500 mt-2 text-center">
+                <span className="text-red-500">*</span> indicates required fields
+              </p>
             </div>
           </div>
         </div>
