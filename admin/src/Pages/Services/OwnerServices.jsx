@@ -1,5 +1,3 @@
-
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -43,38 +41,40 @@ const OwnerServices = () => {
       description: 'Quick response for electrical, plumbing, and appliance repair.',
       color: 'red',
       path: '/maintenanceform'
-    },
-    {
-      title: '🚗 Parking Management',
-      description: 'Secure resident and visitor parking, spot allocation.',
-      color: 'green',
-      path: '/parkingform'
-    },
-    {
-      title: '🎉 Community Events',
-      description: 'Festivals, games, and cultural evenings for social bonding.',
-      color: 'indigo',
-      path: '/communityform'
-    },
-    {
-      title: '🌐 Internet & Cable',
-      description: 'High-speed Wi-Fi and TV setup assistance.',
-      color: 'blue',
-      path: '/internetform'
-    },
-    {
-      title: '🗑️ Waste Management',
-      description: 'Daily collection, recycling, and clean disposal.',
-      color: 'red',
-      path: '/wasteform'
     }
   ];
+
+  const colorClasses = {
+    blue: {
+      border: 'border-blue-500',
+      text: 'text-blue-700',
+      bg: 'bg-blue-500',
+      hover: 'hover:bg-blue-600'
+    },
+    red: {
+      border: 'border-red-500',
+      text: 'text-red-700',
+      bg: 'bg-red-500',
+      hover: 'hover:bg-red-600'
+    },
+    green: {
+      border: 'border-green-500',
+      text: 'text-green-700',
+      bg: 'bg-green-500',
+      hover: 'hover:bg-green-600'
+    },
+    indigo: {
+      border: 'border-indigo-500',
+      text: 'text-indigo-700',
+      bg: 'bg-indigo-500',
+      hover: 'hover:bg-indigo-600'
+    }
+  };
 
   const handleRequestNow = (path) => {
     navigate(path);
   };
 
-  // Filter only based on service title (not description)
   const filteredServices = services.filter((service) =>
     service.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -86,7 +86,9 @@ const OwnerServices = () => {
         <h1 className="text-5xl font-extrabold text-blue-800 drop-shadow-md tracking-wide">
           🏢 Owner Services
         </h1>
-        <p className="text-lg mt-2 text-gray-600">Everything you need for comfortable apartment living</p>
+        <p className="text-lg mt-2 text-gray-600">
+          Everything you need for comfortable apartment living
+        </p>
       </div>
 
       {/* Search Bar */}
@@ -106,15 +108,15 @@ const OwnerServices = () => {
           filteredServices.map((service, index) => (
             <div
               key={index}
-              className={`backdrop-blur-xl bg-white/70 p-6 rounded-2xl shadow-xl hover:scale-[1.03] hover:shadow-2xl transform transition-all duration-300 border-l-4 border-${service.color}-500`}
+              className={`backdrop-blur-xl bg-white/70 p-6 rounded-2xl shadow-xl hover:scale-[1.03] hover:shadow-2xl transform transition-all duration-300 ${colorClasses[service.color].border}`}
             >
-              <h2 className={`text-2xl font-bold mb-2 text-${service.color}-700`}>
+              <h2 className={`text-2xl font-bold mb-2 ${colorClasses[service.color].text}`}>
                 {service.title}
               </h2>
               <p className="text-gray-700">{service.description}</p>
               <button
                 onClick={() => handleRequestNow(service.path)}
-                className={`mt-4 px-4 py-2 text-sm text-white rounded-lg transition duration-300 bg-${service.color}-500 hover:bg-${service.color}-600`}
+                className={`mt-4 px-4 py-2 text-sm text-white rounded-lg transition duration-300 ${colorClasses[service.color].bg} ${colorClasses[service.color].hover}`}
               >
                 Request Now
               </button>

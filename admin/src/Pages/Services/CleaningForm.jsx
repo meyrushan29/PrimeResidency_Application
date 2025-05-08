@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const CleaningForm = () => {
   const [formData, setFormData] = useState({
@@ -16,6 +17,7 @@ const CleaningForm = () => {
 
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [errors, setErrors] = useState({});
+  const [submissionError, setSubmissionError] = useState('');
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -76,13 +78,46 @@ const CleaningForm = () => {
     return validationErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const validationErrors = validateForm();
 
     if (Object.keys(validationErrors).length === 0) {
-      setIsSubmitted(true);
       setErrors({});
+      setSubmissionError('');
+
+      try {
+        // For debugging
+        console.log('Submitting to:', 'http://localhost:8001/api/cleaningservice/cleaning');
+        console.log('Form data:', formData);
+
+        // Send data to the backend
+        const response = await axios.post('http://localhost:8001/api/cleaningservice/cleaning', formData);
+
+        if (response.status === 201) {
+          // Display confirmation message if request is successful
+          setIsSubmitted(true);
+          console.log('Cleaning request submitted successfully');
+        }
+      } catch (error) {
+        console.error('Error submitting cleaning request:', error);
+        
+        // Improved error handling
+        if (error.response) {
+          // The request was made and the server responded with a status code
+          // that falls out of the range of 2xx
+          console.error('Server responded with error:', error.response.data);
+          setSubmissionError(error.response.data.message || 'Server error. Please try again.');
+        } else if (error.request) {
+          // The request was made but no response was received
+          console.error('No response received:', error.request);
+          setSubmissionError('No response from server. Please check your connection and try again.');
+        } else {
+          // Something happened in setting up the request that triggered an Error
+          console.error('Request setup error:', error.message);
+          setSubmissionError('Error setting up the request. Please try again.');
+        }
+      }
     } else {
       setErrors(validationErrors);
     }
@@ -94,7 +129,7 @@ const CleaningForm = () => {
         
         {/* Back button */}
         <button
-          onClick={() => navigate('/ownerserevices')}
+          onClick={() => navigate('/ownerservices')}
           className="absolute top-4 left-4 p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition duration-300 shadow-lg transform hover:scale-110 focus:outline-none"
         >
           &#8592;
@@ -106,20 +141,10 @@ const CleaningForm = () => {
           <div className="text-center text-green-600">
             <h2 className="text-2xl font-bold">Thank you for your request!</h2>
             <p className="mt-2 text-lg">We will contact you shortly to confirm your service.</p>
-            <p className="mt-4 text-sm">Owner ID: {formData.ownerId}</p>
-            <p>Name: {formData.name}</p>
-            <p>Email: {formData.email}</p>
-            <p>Phone Number: {formData.phoneNumber}</p>
-            <p>Service Type: {formData.serviceType === 'daily' ? 'Daily' : 'Weekly'}</p>
-            <p>Number of Staff: {formData.numberOfStaff}</p>
-            <p>Additional Notes: {formData.additionalNotes}</p>
-            <p>Service Date: {formData.date}</p>
-            <p>Service Time: {formData.time}</p>
 
             <button
-              onClick={() => navigate('/ownerserevices')}
+              onClick={() => navigate('/ownerservices')}
               className="mt-6 px-6 py-3 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition duration-300 shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-
             >
               More Services
             </button>
@@ -170,7 +195,7 @@ const CleaningForm = () => {
               {errors.email && <p className="text-red-600 text-sm">{errors.email}</p>}
             </div>
 
-            {/* Phone */}
+            {/* Phone Number */}
             <div className="mb-4">
               <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700">Phone Number</label>
               <input
@@ -194,32 +219,33 @@ const CleaningForm = () => {
                 onChange={handleChange}
                 className="mt-1 p-3 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="daily">Daily Cleaning</option>
-                <option value="weekly">Weekly Cleaning</option>
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+                <option value="bi-weekly">Bi-Weekly</option>
+                <option value="monthly">Monthly</option>
               </select>
               {errors.serviceType && <p className="text-red-600 text-sm">{errors.serviceType}</p>}
             </div>
 
-            {/* Staff */}
+            {/* Number of Staff */}
             <div className="mb-4">
               <label htmlFor="numberOfStaff" className="block text-sm font-medium text-gray-700">Number of Staff</label>
-              <select
+              <input
+                type="number"
                 id="numberOfStaff"
                 name="numberOfStaff"
                 value={formData.numberOfStaff}
                 onChange={handleChange}
                 className="mt-1 p-3 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                {[...Array(10)].map((_, i) => (
-                  <option key={i + 1} value={i + 1}>{i + 1} {i === 0 ? 'Staff' : 'Staffs'}</option>
-                ))}
-              </select>
+                min="1"
+                max="10"
+              />
               {errors.numberOfStaff && <p className="text-red-600 text-sm">{errors.numberOfStaff}</p>}
             </div>
 
             {/* Date */}
             <div className="mb-4">
-              <label htmlFor="date" className="block text-sm font-medium text-gray-700">Service Date</label>
+              <label htmlFor="date" className="block text-sm font-medium text-gray-700">Preferred Date</label>
               <input
                 type="date"
                 id="date"
@@ -233,7 +259,7 @@ const CleaningForm = () => {
 
             {/* Time */}
             <div className="mb-4">
-              <label htmlFor="time" className="block text-sm font-medium text-gray-700">Service Time</label>
+              <label htmlFor="time" className="block text-sm font-medium text-gray-700">Preferred Time</label>
               <input
                 type="time"
                 id="time"
@@ -245,7 +271,7 @@ const CleaningForm = () => {
               {errors.time && <p className="text-red-600 text-sm">{errors.time}</p>}
             </div>
 
-            {/* Notes */}
+            {/* Additional Notes */}
             <div className="mb-4">
               <label htmlFor="additionalNotes" className="block text-sm font-medium text-gray-700">Additional Notes</label>
               <textarea
@@ -253,18 +279,22 @@ const CleaningForm = () => {
                 name="additionalNotes"
                 value={formData.additionalNotes}
                 onChange={handleChange}
-                rows="4"
                 className="mt-1 p-3 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
-            {/* Submit */}
+            {/* Submit Button */}
             <button
               type="submit"
-              className="w-full py-3 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-300"
+              className="w-full py-3 px-4 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition duration-300"
             >
-              Submit Request
+              Request Cleaning Service
             </button>
+            
+            {/* Display submission error if any */}
+            {submissionError && (
+              <p className="text-red-600 text-sm mt-4 text-center">{submissionError}</p>
+            )}
           </form>
         )}
       </div>
