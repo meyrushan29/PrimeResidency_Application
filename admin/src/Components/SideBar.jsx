@@ -150,10 +150,13 @@ const SideBar = () => {
                       </Link>
                     </li>
                     <li>
-                      <Link to="/editowner" className="flex items-center p-2 text-gray-600 rounded hover:bg-gray-200 hover:text-gray-900 transition-all">
+                      <Link to="/manageowner" className="flex items-center p-2 text-gray-600 rounded hover:bg-gray-200 hover:text-gray-900 transition-all">
                         <span className="mr-2">•</span>
-                        <span>Edit Owner</span>
+                        <span>Manage Owner</span>
                       </Link>
+                    </li>
+                    <li>
+                     
                     </li>
                   </ul>
                 )}

@@ -23,6 +23,7 @@ import MyServices from './Pages/Services/MyServices';
 import SecurityForm from './Pages/Services/SecurityForm';
 import LaundryForm from './Pages/Services/LaundryForm';
 import MaintenanceForm from './Pages/Services/MaintenanceForm';
+import ManageHomeOwner from './Pages/HomeOwnerDetails/ManageHomeOwner';
 
 const App = () => {
   const [userRole, setUserRole] = useState(null); // Manage user role state
@@ -89,8 +90,9 @@ const App = () => {
                     <Route path="/editavhome/:id" element={<EditAvHome />} />
                     <Route path="/pollupdate/:id" element={<PollUpdate />} />
                     <Route path="/addowner" element={<AddOwner />} />
-                    <Route path="/editowner" element={<EditOwner />} />
                     <Route path="/adbookings" element={<AllBookings />} />
+                    <Route path="/manageowner" element={<ManageHomeOwner />} />
+                    <Route path="/edit-owner/:id" element={<EditOwner />} />
                   </>
                 )}
                 <Route path="*" element={<Navigate to="/" />} />

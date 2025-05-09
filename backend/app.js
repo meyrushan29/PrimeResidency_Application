@@ -7,6 +7,7 @@ const apartmentRoutes = require('./routes/apartmentRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
 const authRoutes = require('./routes/authRoutes');
 const accountRoutes = require('./routes/AccountRoutes');
+const HomeOwnerRoutes = require('./routes/HomeOwnerRoute')
 const cleaningRoutes = require('./routes/CleaningRoutes')
 const { errorHandler } = require('./middleware/auth');
 const cookieParser = require('cookie-parser');
@@ -35,6 +36,8 @@ app.use('/uploads', express.static('uploads'));
 // Serve images from homeimg directory
 app.use('/homeimg', express.static('homeimg'));
 
+// Serve images from owner directory
+app.use('/owners', express.static('owners'));
 
 // Connect to the database
 connectDB();
@@ -47,6 +50,9 @@ app.use('/api', bookingRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/authaccount', accountRoutes);
 app.use('/api/cleaningservice', cleaningRoutes);
+app.use('/api/homeowner',HomeOwnerRoutes );
+
+
 
 // Error handling middleware
 app.use(errorHandler);
