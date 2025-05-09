@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 
 const SideBar = () => {
   const [isVotingExpanded, setIsVotingExpanded] = useState(false);
+  const [isChatbotExpanded, setIsChatbotExpanded] = useState(false);
   const [isHomeExpanded, setIsHomeExpanded] = useState(false);
   const [isOwnerExpanded, setIsOwnerExpanded] = useState(false);
   const [isServiceExpanded, setIsServiceExpanded] = useState(false);
@@ -13,24 +14,43 @@ const SideBar = () => {
 
   // Get user role from localStorage when the component mounts
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      try {
-        const decodedToken = JSON.parse(atob(token.split('.')[1])); // Decode JWT token
-        if (decodedToken && decodedToken.role) {
-          setUserRole(decodedToken.role); // Set the role from the token
-        } else {
-          throw new Error('Invalid role in token');
+    let isMounted = true; // Flag to track if component is mounted
+    
+    const checkToken = () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          const decodedToken = JSON.parse(atob(token.split('.')[1])); // Decode JWT token
+          if (decodedToken && decodedToken.role) {
+            if (isMounted) {
+              setUserRole(decodedToken.role); // Set the role from the token
+            }
+          } else {
+            throw new Error('Invalid role in token');
+          }
+        // eslint-disable-next-line no-unused-vars
+        } catch (error) {
+          localStorage.removeItem('token');
+          if (isMounted) {
+            navigate('/login');
+          }
         }
-      // eslint-disable-next-line no-unused-vars
-      } catch (error) {
-        localStorage.removeItem('token');
-        navigate('/login');
+      } else {
+        if (isMounted) {
+          navigate('/login');
+        }
       }
-    } else {
-      navigate('/login');
-    }
-    setIsLoading(false); // Stop loading after checking the role
+      if (isMounted) {
+        setIsLoading(false); // Stop loading after checking the role
+      }
+    };
+    
+    checkToken();
+    
+    // Cleanup function to prevent state updates if unmounted
+    return () => {
+      isMounted = false;
+    };
   }, [navigate]);
 
   if (isLoading) {
@@ -194,6 +214,30 @@ const SideBar = () => {
                         <span>Voting</span>
                       </Link>
                     </li>
+                  </ul>
+                )}
+              </li>
+              <li>
+                <button
+                  onClick={() => setIsChatbotExpanded(!isChatbotExpanded)}
+                  className="w-full flex items-center justify-between p-2 text-gray-700 rounded hover:bg-gray-200 hover:text-gray-900 transition-all"
+                >
+                  <div className="flex items-center">
+                    <span className="mr-3">🤖</span>
+                    <span>ChatBot</span>
+                  </div>
+                  <span className="text-sm">{isChatbotExpanded ? '▼' : '►'}</span>
+                </button>
+
+                {isChatbotExpanded && (
+                  <ul className="ml-6 mt-2 space-y-1">
+                    <li>
+                      <Link to="/chatbot" className="flex items-center p-2 text-gray-600 rounded hover:bg-gray-200 hover:text-gray-900 transition-all">
+                        <span className="mr-2">•</span>
+                        <span>Chat!With Me</span>
+                      </Link>
+                    </li>
+                   
                   </ul>
                 )}
               </li>

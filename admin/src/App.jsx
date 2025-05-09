@@ -25,6 +25,9 @@ import LaundryForm from './Pages/Services/LaundryForm';
 import MaintenanceForm from './Pages/Services/MaintenanceForm';
 import ManageHomeOwner from './Pages/HomeOwnerDetails/ManageHomeOwner';
 
+
+
+
 const App = () => {
   const [userRole, setUserRole] = useState(null); // Manage user role state
   const navigate = useNavigate();  // Initialize navigate here
@@ -78,6 +81,8 @@ const App = () => {
                     <Route path="/securityform" element={<SecurityForm />} />
                     <Route path="/laundryform" element={<LaundryForm />} />
                     <Route path="/maintenanceform" element={<MaintenanceForm />} />
+                   
+                   
                   </>
                 )}
                 {userRole === 'admin' && (

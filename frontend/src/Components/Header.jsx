@@ -6,9 +6,12 @@ import banner4 from '../assets/banner4.jpg';
 import banner5 from '../assets/banner5.jpg'; 
 import banner6 from '../assets/banner6.jpg';       
 
+import Chatbot from '../Pages/ChatBot/Chatbot';
+
 const Header = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
+  const [isChatbotOpen, setIsChatbotOpen] = useState(false);
   const heroRef = useRef(null);
 
   // Array of images for banner carousel with text overlays
@@ -57,6 +60,11 @@ const Header = () => {
     }
   ];
   
+  // Toggle chatbot visibility
+  const toggleChatbot = () => {
+    setIsChatbotOpen(!isChatbotOpen);
+  };
+
   // Auto-rotate banner images
   useEffect(() => {
     const interval = setInterval(() => {
@@ -97,6 +105,28 @@ const Header = () => {
     <div ref={heroRef} className="relative h-screen overflow-hidden bg-gray-900">
       {/* Gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent z-10"></div>
+
+      {/* Chatbot toggle button */}
+      <button 
+        onClick={toggleChatbot}
+        className="fixed bottom-6 right-6 z-50 bg-white text-gray-900 rounded-full p-4 shadow-lg hover:bg-gray-100 transition-all duration-300 flex items-center justify-center"
+        aria-label="Toggle chat assistant"
+      >
+        {isChatbotOpen ? (
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        ) : (
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+          </svg>
+        )}
+      </button>
+
+      {/* Chatbot component with toggle effect */}
+      <div className={`fixed right-6 bottom-24 z-50 transition-all duration-300 transform ${isChatbotOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 translate-y-12 pointer-events-none'}`}>
+        <Chatbot />
+      </div>
       
       {/* Background images with smooth transition */}
       <div className="absolute inset-0">

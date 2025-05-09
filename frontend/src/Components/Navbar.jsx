@@ -11,7 +11,7 @@ const Navbar = () => {
 
     // Get token from localStorage
     const token = localStorage.getItem('token');
-    const userData = { image: profile_pic, name: "John Doe" }; // Example user data
+    const userData = { image: profile_pic, name: "Laxshika Siva" }; // Example user data
 
     // Handle scroll effect for navbar
     useEffect(() => {
@@ -117,7 +117,7 @@ const Navbar = () => {
                                 <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden min-w-56">
                                     <div className="p-4 border-b border-gray-100 bg-gray-50/80 backdrop-blur-sm">
                                         <p className="text-sm font-semibold text-gray-900">{userData.name}</p>
-                                        <p className="text-xs text-gray-500">user@example.com</p>
+                                        <p className="text-xs text-gray-500">laxshika@gmail.com</p>
                                     </div>
                                     <div className="py-2">
                                         <button onClick={() => navigate('/myprofile')} className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 flex items-center gap-3 transition-colors">
