@@ -23,6 +23,9 @@ import MyServices from './Pages/Services/MyServices';
 import SecurityForm from './Pages/Services/SecurityForm';
 import LaundryForm from './Pages/Services/LaundryForm';
 import MaintenanceForm from './Pages/Services/MaintenanceForm';
+import Chatbot from './Pages/ChatBot/Chatbot';
+
+
 
 const App = () => {
   const [userRole, setUserRole] = useState(null); // Manage user role state
@@ -77,6 +80,8 @@ const App = () => {
                     <Route path="/securityform" element={<SecurityForm />} />
                     <Route path="/laundryform" element={<LaundryForm />} />
                     <Route path="/maintenanceform" element={<MaintenanceForm />} />
+                    <Route path="/chatbot" element={<Chatbot />} />
+                   
                   </>
                 )}
                 {userRole === 'admin' && (
@@ -91,6 +96,7 @@ const App = () => {
                     <Route path="/addowner" element={<AddOwner />} />
                     <Route path="/editowner" element={<EditOwner />} />
                     <Route path="/adbookings" element={<AllBookings />} />
+                    
                   </>
                 )}
                 <Route path="*" element={<Navigate to="/" />} />

@@ -6,7 +6,7 @@ const {
   getMe, 
   logout,
   updateProfile
-} = require('../controllers/authController'); // FIXED: Changed from '../controller/authController'
+} = require('../controller/authController'); // FIXED: Changed from '../controller/authController'
 const { protect } = require('../middleware/auth');
 
 const router = express.Router();
